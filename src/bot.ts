@@ -1,0 +1,9 @@
+import { Telegraf } from "telegraf";
+import { BOT_TOKEN } from "./config/config";
+import composer from "./controllers/botComands";
+
+const bot = new Telegraf(BOT_TOKEN);
+
+bot.use(composer);
+
+bot.launch().then(() => console.log("бот запущен"));
