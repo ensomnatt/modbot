@@ -1,10 +1,10 @@
 {
   "name": "modbot",
   "version": "1.0.0",
-  "description": "",
+  "description": "- #### **доделать основные методы модели**  - #### **сделать методы для работы со временем**",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -17,5 +17,14 @@
     "luxon": "^3.6.1",
     "telegraf": "^4.16.3",
     "typescript": "^5.8.2"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ensomnatt/modbot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ensomnatt/modbot/issues"
+  },
+  "homepage": "https://github.com/ensomnatt/modbot#readme"
 }

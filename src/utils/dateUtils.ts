@@ -4,9 +4,9 @@ class DateUtils {
    private FORMAT: string;
    private TIME_ZONE: string; 
 
-  constructor(TIME_ZONE: string) {
+  constructor(timeZone: string) {
     this.FORMAT = "yyyy-MM-dd HH:mm";
-    TIME_ZONE = TIME_ZONE;
+    this.TIME_ZONE = timeZone;
   }
 
   async getCurrentTime(): Promise<DateTime> {
