@@ -12,7 +12,9 @@
   "type": "commonjs",
   "dependencies": {
     "@types/better-sqlite3": "^7.6.12",
+    "@types/luxon": "^3.6.0",
     "better-sqlite3": "^11.9.1",
+    "luxon": "^3.6.1",
     "telegraf": "^4.16.3",
     "typescript": "^5.8.2"
   }

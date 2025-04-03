@@ -7,12 +7,39 @@ interface warnData {
 }
 
 class Model {
+  async maxWarns(maxWarns: number) {
+    try {
+      db.prepare("UPDATE chat SET max_warns = ?").run(maxWarns);
+      console.log(`изменено максимальное количество варнов на ${maxWarns}`);
+    } catch (error) {
+      console.error(`ошибка при изменении максимального количества варнов: ${error}`);
+    }
+  }
+
+  async warnsPeriod(period: number) {
+    try {
+      db.prepare("UPDATE chat SET warns_period = ?").run(period);
+      console.log(`изменено время варнов на ${period}`);
+    } catch (error) {
+      console.error(`ошибка при изменении времени варнов: ${error}`);
+    }
+  }
+
   async chat(chatID: number) {
     try {
-      db.prepare("INSERT INTO chat (chat_id) VALUES (?)").run(chatID);
+      db.prepare("UPDATE chat SET chat_id = ?").run(chatID);
       console.log(`добавлена информация о чате: ${chatID}`);
     } catch (error) {
       console.error(`ошибка при попытке добавить информацию о чате: ${chatID}`);
+    }
+  }
+  
+  async timeZone(timeZone: string) {
+    try {
+      db.prepare("UPDATE chat SET time_zone = ?").run(timeZone);
+      console.log(`изменен часовой пояс на ${timeZone}`);
+    } catch (error) {
+      console.error(`ошибка при изменении часового пояса: ${error}`);
     }
   }
 
@@ -126,3 +153,5 @@ class Model {
     }
   }
 } 
+
+export default Model;

@@ -4,9 +4,12 @@ const db = new Database("src/database/modBot.db");
 
 db.prepare(`CREATE TABLE IF NOT EXISTS chat (
   chat_id INTEGER,
-  warns_max INTEGER DEFAULT 3,
-  warns_period
+  warns_max INTEGER,
+  warns_period INTEGER,
+  time_zone TEXT
 )`).run();
+
+db.prepare("INSERT INTO chat (chat_id, warns_max, warns_period) VALUES (0, 3, 259200)").run();
 
 db.prepare(`CREATE TABLE IF NOT EXISTS users (
   user_id INTEGER NOT NULL,
