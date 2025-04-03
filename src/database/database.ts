@@ -9,7 +9,7 @@ db.prepare(`CREATE TABLE IF NOT EXISTS chat (
   time_zone TEXT
 )`).run();
 
-db.prepare("INSERT INTO chat (chat_id, warns_max, warns_period) VALUES (0, 3, 259200)").run();
+db.prepare("INSERT INTO chat (chat_id, warns_max, warns_period, time_zone) VALUES (0, 3, 259200, \"Europe/Moscow\")").run();
 
 db.prepare(`CREATE TABLE IF NOT EXISTS users (
   user_id INTEGER NOT NULL,

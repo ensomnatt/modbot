@@ -1,12 +1,26 @@
 import db from "../database/database";
 
 //костыль для получения инфы о варнах
-interface warnData {
+interface WarnData {
   warns: number,
   warns_why: string
 }
 
-class Model {
+export interface Chat {
+  chatID: number,
+  warnsMax: number,
+  warnsPeriod: number,
+  timeZone: string
+}
+
+interface ChatData {
+  chat_id: number,
+  warns_max: number,
+  warns_period: number,
+  time_zone: string
+}
+
+export class Model {
   async maxWarns(maxWarns: number) {
     try {
       db.prepare("UPDATE chat SET max_warns = ?").run(maxWarns);
@@ -40,6 +54,24 @@ class Model {
       console.log(`изменен часовой пояс на ${timeZone}`);
     } catch (error) {
       console.error(`ошибка при изменении часового пояса: ${error}`);
+    }
+  }
+
+  async chatInfo(): Promise<Chat | null> {
+    try {
+      const chatRaw = await db.prepare("SELECT * FROM chat").get() as ChatData;
+      const chat: Chat = {
+        chatID: chatRaw.chat_id,
+        warnsMax: chatRaw.warns_max,
+        warnsPeriod: chatRaw.warns_period,
+        timeZone: chatRaw.time_zone
+      }
+
+      console.log("получена информация о чате");
+      return chat;
+    } catch (error) {
+      console.error(`ошибка при взятии информации о чате: ${error}`);
+      return null;
     }
   }
 
@@ -143,7 +175,7 @@ class Model {
 
   async getWarns(userID: number): Promise<[number, string]> {
     try {
-      const rawData = await db.prepare("SELECT (warns, warns_why) FROM users WHERE user_id = ?").get(userID) as warnData;
+      const rawData = await db.prepare("SELECT (warns, warns_why) FROM users WHERE user_id = ?").get(userID) as WarnData;
 
       console.log(`получена информация о варнах пользователя ${userID}`);
       return [rawData.warns, rawData.warns_why]
@@ -153,5 +185,3 @@ class Model {
     }
   }
 } 
-
-export default Model;
