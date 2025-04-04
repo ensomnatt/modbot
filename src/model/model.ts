@@ -171,6 +171,7 @@ export class Model {
   async unWarn(userID: number) {
     try {
       const [_warns, warnsWhy] = await this.getWarns(userID);
+      if (warnsWhy === null) throw new Error("warnsWhy is null");
       if (warnsWhy !== "") {
         const newWarnsWhy = warnsWhy.split(",").slice(1).join(",");
         db.prepare("UPDATE users SET warns = warns - 1, warns_why = ? WHERE user_id = ?").run(newWarnsWhy, userID);
@@ -184,7 +185,7 @@ export class Model {
     }
   }
 
-  async getWarns(userID: number): Promise<[number, string]> {
+  async getWarns(userID: number): Promise<[number | null, string | null]> {
     try {
       const rawData = await db.prepare("SELECT (warns, warns_why) FROM users WHERE user_id = ?").get(userID) as WarnData;
 
@@ -192,7 +193,29 @@ export class Model {
       return [rawData.warns, rawData.warns_why]
     } catch (error) {
       console.log(`ошибка при получении информации о варнах: ${error}`);
-      return [0, ""];
+      return [null, null];
+    }
+  }
+
+  async getWarnsMax(): Promise<number | null> {
+    try {
+      const maxWarns = await db.prepare("SELECT (warns_max) FROM chat").get() as number;
+      console.log("получено максимальное количество варнов")
+      return maxWarns;
+    } catch(error) {
+      console.error(`ошибка при получении максимального количества варнов ${error}`)
+      return null;
+    }
+  }
+
+  async getWarnsPeriod(): Promise<number | null> {
+    try {
+      const warnsPeriod = await db.prepare("SELECT (warns_period) FROM chat").get() as number;
+      console.log("получена длительность варнов");
+      return warnsPeriod;
+    } catch (error) {
+      console.error(`ошибка при получении длительности варнов: ${error}`);
+      return null;
     }
   }
 } 

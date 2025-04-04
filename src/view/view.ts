@@ -28,6 +28,10 @@ class View {
     );
   }
 
+  static async settingsMessage(ctx: Context, warnsMax: number, warnsPeriod: number | string) {
+    await ctx.reply(`максимальное количество варнов для бана - ${warnsMax}\nдлительность варнов по дефолту: ${warnsPeriod}`);
+  }
+
   static async maxWarns(ctx: Context, maxWarns: number) {
     await ctx.reply(`количество варнов изменено на ${maxWarns}`);
   }
