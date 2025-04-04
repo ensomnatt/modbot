@@ -10,7 +10,7 @@ db.prepare(`CREATE TABLE IF NOT EXISTS chat (
   code TEXT
 )`).run();
 
-db.prepare("INSERT INTO chat (chat_id, warns_max, warns_period, time_zone) VALUES (0, 3, 259200, ?)").run("Europe/Moscow");
+db.prepare("INSERT INTO chat (chat_id, warns_max, warns_period, time_zone) VALUES (0, 3, 0, ?)").run("Europe/Moscow");
 
 db.prepare(`CREATE TABLE IF NOT EXISTS users (
   user_id INTEGER NOT NULL,

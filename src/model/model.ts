@@ -25,7 +25,7 @@ interface ChatData {
 export class Model {
   async maxWarns(maxWarns: number) {
     try {
-      db.prepare("UPDATE chat SET max_warns = ?").run(maxWarns);
+      db.prepare("UPDATE chat SET warns_max = ?").run(maxWarns);
       console.log(`изменено максимальное количество варнов на ${maxWarns}`);
     } catch (error) {
       console.error(`ошибка при изменении максимального количества варнов: ${error}`);
@@ -79,7 +79,6 @@ export class Model {
         code: chatRaw.code
       }
 
-      console.log("получена информация о чате");
       return chat;
     } catch (error) {
       console.error(`ошибка при взятии информации о чате: ${error}`);

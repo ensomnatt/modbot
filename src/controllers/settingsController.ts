@@ -3,6 +3,7 @@ import { Model } from "../model/model";
 import DateUtils from "../utils/dateUtils";
 import View from "../view/view";
 import { nanoid } from "nanoid";
+import ParseUtils from "../utils/parseUtils";
 
 class SettingsController {
   private model: Model;
@@ -30,6 +31,53 @@ class SettingsController {
     await this.model.chat(chatID);
     console.log(`бот был добавлен в группу ${chatID}`);
     await View.firstMessage(ctx);
+  }
+
+  async maxWarns(ctx: Context) {
+    let text: string = "";
+    if (ctx.message && "text" in ctx.message) text = ctx.message.text;
+
+    let maxWarnsIndex: number = 1;
+    if (text.startsWith("максимум")) maxWarnsIndex = 2;
+
+    const maxWarns = parseInt(text.split(" ")[maxWarnsIndex], 10);
+    if (typeof maxWarns !== "number") await View.maxWarnsError(ctx);
+
+    await this.model.maxWarns(maxWarns);
+    await View.maxWarns(ctx, maxWarns);
+    console.log(`пользователь @${ctx.from?.username} изменил максимальное количество варнов`);
+  }
+
+  async warnsPeriod(ctx: Context) {
+    let text: string = "";
+    if (ctx.message && "text" in ctx.message) text = ctx.message.text;
+
+    const parsedText = await ParseUtils.parseDuration(text);
+
+    const time = parsedText.join(" ");
+
+    const regex = /(\d+)\s+(год|года|лет|месяц|месяца|месяцев|день|дня|дней)/g;
+    const foundUnits = new Set<string>();
+
+    let match;
+    while((match = regex.exec(time)) !== null) {
+      const [, , unit] = match;
+      if (foundUnits.has(unit)) {
+        await View.warnsPeriodError(ctx);
+        return;
+      }
+      foundUnits.add(unit);
+    }
+
+    if (foundUnits.size === 0) {
+      await View.warnsPeriodError(ctx);
+      return;
+    }
+
+    await this.model.warnsPeriod(await this.dateUtils.getDuration(parsedText));
+    await View.warnsPeriod(ctx);
+
+    console.log(`пользователь @${ctx.from?.username} изменил длительность варна`);
   }
 }
 

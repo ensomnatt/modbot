@@ -1,4 +1,4 @@
-import { DateTime } from "luxon";
+import { DateTime, Duration } from "luxon";
 
 class DateUtils {
    private FORMAT: string;
@@ -35,6 +35,25 @@ class DateUtils {
 
   async UNIXToString(unix: number): Promise<string> {
     return await this.dateToString(await this.UNIXToDate(unix));
+  }
+
+  async getDuration(elements: string[]): Promise<number> {
+    let duration = {years: 0, months: 0, days: 0};
+
+    for (let i = 0; i < elements.length; i += 2) {
+      const number = parseInt(elements[i], 10);
+      const unit = elements[i + 1];
+
+      if (unit === "год" || unit === "года" || unit === "лет") {
+        duration.years += number;
+      } else if (unit === "месяц" || unit === "месяца" || unit === "месяцев") {
+        duration.months += number;
+      } else if (unit === "день" || unit === "дня" || unit === "дней") {
+        duration.days += number;
+      }
+    }
+
+    return Duration.fromObject(duration).toMillis() / 1000;
   }
 }
 
