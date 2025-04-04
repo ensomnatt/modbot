@@ -1,11 +1,12 @@
 import { Composer } from "telegraf";
-import { chatAddMW } from "../middlewares/middlewares";
+import { startMW, codeMW } from "../middlewares/middlewares";
 import SettingsController from "./settingsController";
 
 const composer = new Composer();
 const settingsController = new SettingsController();
 settingsController.initialize();
 
-composer.on("group_chat_created", chatAddMW, (ctx) => settingsController.addedToChat(ctx));
+composer.command("start", startMW, (ctx) => settingsController.start(ctx));
+composer.on("message", codeMW, (ctx) => settingsController.rememberChat(ctx));
 
 export default composer;

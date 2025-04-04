@@ -7,17 +7,19 @@ interface WarnData {
 }
 
 export interface Chat {
-  chatID: number,
-  warnsMax: number,
-  warnsPeriod: number,
-  timeZone: string
+  chatID: number;
+  warnsMax: number;
+  warnsPeriod: number;
+  timeZone: string;
+  code: string;
 }
 
 interface ChatData {
-  chat_id: number,
-  warns_max: number,
-  warns_period: number,
-  time_zone: string
+  chat_id: number;
+  warns_max: number;
+  warns_period: number;
+  time_zone: string;
+  code: string;
 }
 
 export class Model {
@@ -57,6 +59,15 @@ export class Model {
     }
   }
 
+  async code(code: string) {
+    try {
+      db.prepare("UPDATE chat SET code = ?").run(code);
+      console.log(`код добавлен в базу данных: ${code}`);
+    } catch (error) {
+      console.error(`ошибка при добавлении кода: ${error}`);
+    }
+  }
+
   async chatInfo(): Promise<Chat | null> {
     try {
       const chatRaw = await db.prepare("SELECT * FROM chat").get() as ChatData;
@@ -64,7 +75,8 @@ export class Model {
         chatID: chatRaw.chat_id,
         warnsMax: chatRaw.warns_max,
         warnsPeriod: chatRaw.warns_period,
-        timeZone: chatRaw.time_zone
+        timeZone: chatRaw.time_zone,
+        code: chatRaw.code
       }
 
       console.log("получена информация о чате");
