@@ -5,7 +5,7 @@ class ParseUtils {
     const allowedUnits = new Set([
       "год", "года", "лет",
       "месяц", "месяца", "месяцев",
-      "день", "дня", "дней"
+      "день", "дня", "дней", "бесконечно"
     ]);
 
     return splittedText.filter(word => /^\d+$/.test(word) || allowedUnits.has(word));

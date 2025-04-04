@@ -55,6 +55,11 @@ class SettingsController {
     const parsedText = await ParseUtils.parseDuration(text);
 
     const time = parsedText.join(" ");
+    if (time.includes("бесконечно")) {
+      await this.model.warnsPeriod(0);
+      await View.warnsPeriod(ctx);
+      return;
+    }
 
     const regex = /(\d+)\s+(год|года|лет|месяц|месяца|месяцев|день|дня|дней)/g;
     const foundUnits = new Set<string>();
