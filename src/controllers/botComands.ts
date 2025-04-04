@@ -15,6 +15,8 @@ composer.command("warnsperiod", chatMW, adminMW, (ctx) => settingsController.war
 composer.hears(/!длительность варнов/, chatMW, adminMW, (ctx) => settingsController.warnsPeriod(ctx));
 composer.command("help", chatMW, (ctx) => helpCommandsController.help(ctx));
 composer.hears(/!помощь/, chatMW, (ctx) => helpCommandsController.help(ctx));
+composer.command("settings", chatMW, (ctx) => helpCommandsController.settings(ctx));
+composer.hears(/!настройки/, chatMW, (ctx) => helpCommandsController.settings(ctx));
 composer.on("message", codeMW, (ctx) => settingsController.rememberChat(ctx));
 
 export default composer;
