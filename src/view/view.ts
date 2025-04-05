@@ -34,6 +34,14 @@ class View {
     await ctx.reply(botMessages.ban(username));
   }
 
+  static async unBanMessage(ctx: Context, username: string) {
+    await ctx.sendMessage(botMessages.unBan(username));
+  }
+
+  static async gropError(ctx: Context) {
+    await ctx.reply(botMessages.gropError);
+  }
+
   static async warnsPeriodError(ctx: Context) {
     await ctx.reply(botMessages.warnsPeriodError);
   }

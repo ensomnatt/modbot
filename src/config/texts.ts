@@ -23,7 +23,9 @@ const botMessages = {
   warnsPeriodError: "использование: /warnsperiod 5 лет 5 месяцев 5 дней / длительность варнов 5 лет 5 месяцев 5 дней",
   warnsMaxError: "использование: /maxwarns 5 / максимум варнов 5",
   banReplyError: "использование: /ban / !бан / /ban 5 лет / !бан 5 лет / /ban нехороший / !бан нехороший / /ban 5 лет нехороший / !бан 5 лет нехороший",
-  banError: "использование: /ban @PavelDurov / !бан @PavelDurov / /ban @PavelDurov 5 лет / !бан @PavelDurov 5 лет / /ban @PavelDurov нехороший / !бан @PavelDurov нехороший / /ban @PavelDurov 5 лет нехороший / !бан @PavelDurov 5 лет нехороший"
+  banError: "использование: /ban @PavelDurov / !бан @PavelDurov / /ban @PavelDurov 5 лет / !бан @PavelDurov 5 лет / /ban @PavelDurov нехороший / !бан @PavelDurov нехороший / /ban @PavelDurov 5 лет нехороший / !бан @PavelDurov 5 лет нехороший",
+  unBan: (username: string) => `пользователь @${username} был разбанен`,
+  gropError: "разбанить пользователя можно только в супергруппе или обсуждении канала",
 }
 
 export default botMessages;

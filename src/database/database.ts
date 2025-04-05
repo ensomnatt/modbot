@@ -19,6 +19,7 @@ db.prepare(`CREATE TABLE IF NOT EXISTS users (
   muted_why TEXT DEFAULT NULL,
   mute_period INTEGER DEFAULT NULL,
   warns INTEGER DEFAULT 0,
+  warns_period INTEGER DEFAULT NULL,
   warns_why TEXT DEFAULT NULL
 )`).run();
 

@@ -3,15 +3,18 @@ import View from "../view/view";
 import { ChatModel } from "../models/chatModel";
 import { StatisticsModel } from "../models/statisticsModel";
 import DateUtils from "../utils/dateUtils";
+import { UsersModel } from "../models/usersModel";
 
 class HelpCommandsController {
   private chatModel: ChatModel;
   private statisticsModel: StatisticsModel;
+  private usersModel: UsersModel;
   private dateUtils: DateUtils;
 
   constructor() {
     this.chatModel = new ChatModel();
     this.statisticsModel = new StatisticsModel();
+    this.usersModel = new UsersModel();
     this.dateUtils = new DateUtils("");
   }
 
@@ -54,6 +57,10 @@ class HelpCommandsController {
     } catch (error) {
       console.error(`ошибка при вызове команды /statistics: ${error}`);
     }
+  }
+
+  async users(ctx: Context) {
+    const users = await this.usersModel.getUsers();
   }
 }
 

@@ -16,6 +16,7 @@ export interface User {
   mutePeriod: number | null;
   warns: number;
   warnsWhy: string[] | null;
+  warnsPeriod: number | null;
 }
 
 interface UserData {
@@ -28,6 +29,7 @@ interface UserData {
   mute_period: number | null;
   warns: number;
   warns_why: string | null;
+  warns_period: number | null;
 }
 
 export class UsersModel {
@@ -37,6 +39,39 @@ export class UsersModel {
       console.log(`добавлен новый пользователь: ${userID}`);
     } catch (error) {
       console.error(`ошибка при добавлении пользователя: ${error}`);
+    }
+  }
+
+  async getUsers(): Promise<User[] | null> {
+    try {
+      const usersRaw = db.prepare("SELECT * FROM users").all() as UserData[];
+      let users: User[] = [];
+      for (const userRaw of usersRaw) {
+        if (userRaw.user_id === null) throw new Error("userID is null");
+
+        let user: User = {
+          userID: userRaw.user_id,
+          banned: false,
+          bannedWhy: userRaw.banned_why,
+          banPeriod: userRaw.ban_period,
+          muted: false,
+          mutedWhy: userRaw.muted_why,
+          mutePeriod: userRaw.mute_period,
+          warns: userRaw.warns,
+          warnsPeriod: userRaw.warns_period,
+          warnsWhy: userRaw.warns_why?.split(",") || null,
+        }
+
+        if (userRaw.banned) user.banned = true;
+        if (userRaw.muted) user.muted = true;
+
+        users.push(user);
+      }
+
+      return users;
+    } catch (error) {
+      console.error(`ошибка при получении всех пользователей: ${error}`);
+      return null;
     }
   }
 

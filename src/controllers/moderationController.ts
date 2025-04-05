@@ -40,7 +40,6 @@ class ModerationController {
         const username = replyMessage.from?.username;
         const userID = replyMessage.from?.id;
 
-        if (username === undefined) throw new Error("username is undefined");
         if (userID === undefined) throw new Error("userID is undefined");
 
         //причина и время бана
@@ -55,9 +54,35 @@ class ModerationController {
         await this.statisticsModel.updateStatistics("bans");
         if (!await this.usersModel.checkIfUserExists(userID)) await this.usersModel.add(userID);
         await this.usersModel.ban(userID, why, banPeriod);
+        await ctx.banChatMember(userID);
+        await View.banMessage(ctx, username || "");
       }
     } catch (error) {
       console.error(`ошибка при вызове команды /ban: ${error}`);
+    }
+  }
+
+  async unBan(ctx: Context) {
+    console.log(`пользователь @${ctx.from?.username} вызвал команду /unban`);
+    let replyMessage;
+    if (ctx.message && "reply_to_message" in ctx.message) replyMessage = ctx.message.reply_to_message;
+
+    if (replyMessage) {
+      try {
+        if (ctx.chat?.type === "supergroup" || ctx.chat?.type === "channel") {
+          const userID = replyMessage.from?.id;
+          const username = replyMessage.from?.username;
+          if (userID === undefined) throw new Error("userID is undefined");
+          
+          await this.usersModel.unBan(userID);
+          await ctx.unbanChatMember(userID);
+          await View.unBanMessage(ctx, username || "")
+        } else {
+          await View.gropError(ctx);
+        }
+      } catch (error) {
+        console.error(`ошибка при вызове команды /unban: ${error}`);
+      }
     }
   }
 }
