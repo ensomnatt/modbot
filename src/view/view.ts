@@ -51,6 +51,10 @@ class View {
   static async maxWarnsError(ctx: Context) {
     await ctx.reply("использование: /maxwarns 5 / максимум варнов 5");
   }
+
+  static async banMessage(ctx: Context, username: string) {
+    await ctx.reply(`пользователь @${username} был забанен`);
+  }
 }
 
 export default View;

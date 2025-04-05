@@ -10,6 +10,17 @@ class ParseUtils {
 
     return splittedText.filter(word => /^\d+$/.test(word) || allowedUnits.has(word));
   }
+
+  static async hasTime(text: string): Promise<boolean> {
+    const regex = /(\d+)\s+(год|года|лет|месяц|месяца|месяцев|день|дня|дней)/g;
+    const match = regex.exec(text);
+
+    if (!match) {
+      return false;
+    } else {
+      return true;
+    }
+  }
 }
 
 export default ParseUtils;

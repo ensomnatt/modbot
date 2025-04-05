@@ -54,27 +54,13 @@ class SettingsController {
 
     const parsedText = await ParseUtils.parseDuration(text);
 
-    const time = parsedText.join(" ");
-    if (time.includes("бесконечно")) {
+    if (parsedText.includes("бесконечно")) {
       await this.chatModel.warnsPeriod(0);
       await View.warnsPeriod(ctx);
       return;
     }
 
-    const regex = /(\d+)\s+(год|года|лет|месяц|месяца|месяцев|день|дня|дней)/g;
-    const foundUnits = new Set<string>();
-
-    let match;
-    while((match = regex.exec(time)) !== null) {
-      const [, , unit] = match;
-      if (foundUnits.has(unit)) {
-        await View.warnsPeriodError(ctx);
-        return;
-      }
-      foundUnits.add(unit);
-    }
-
-    if (foundUnits.size === 0) {
+    if (!ParseUtils.hasTime(parsedText.join(" "))) {
       await View.warnsPeriodError(ctx);
       return;
     }

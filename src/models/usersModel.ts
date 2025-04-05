@@ -16,11 +16,11 @@ export class UsersModel {
     }
   }
 
-  async ban(userID: number, why?: string, period?: string) {
+  async ban(userID: number, why?: string, period?: number) {
     try {
-      if (!why && !period) {
-        db.prepare("UPDATE users SET banned = 1, ban_period = 0 WHERE user_id = ?").run(userID);
-        console.log(`забанен пользователь ${userID} без причины навсегда`);
+      if (why && period) {
+        db.prepare("UPDATE users SET banned = 1, banned_why = ?,ban_period = ? WHERE user_id = ?").run(why, period, userID);
+        console.log(`забанен пользователь ${userID} по причине ${why} на ${period}`);
       } else if (why) {
         db.prepare("UPDATE users SET banned = 1, banned_why = ?, ban_period = 0 WHERE user_id = ?").run(why, userID);
         console.log(`забанен пользователь ${userID} по причине ${why} навсегда`);
@@ -28,8 +28,8 @@ export class UsersModel {
         db.prepare("UPDATE users SET banned = 1, ban_period = ? WHERE user_id = ?").run(period, userID);
         console.log(`забанен пользователь ${userID} без причины на ${period}`);
       } else {
-        db.prepare("UPDATE users SET banned = 1, banned_why = ?, ban_period = ? WHERE user_id = ?").run(why, period, userID);
-        console.log(`забанен пользователь ${userID} по причине ${why} на ${period}`)
+        db.prepare("UPDATE users SET banned = 1, ban_period = 0 WHERE user_id = ?").run(userID);
+        console.log(`забанен пользователь ${userID} без причины навсегда`)
       }
     } catch (error) {
       console.error(`ошибка при бане пользователя: ${error}`);
