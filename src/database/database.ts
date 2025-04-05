@@ -24,6 +24,15 @@ db.prepare(`CREATE TABLE IF NOT EXISTS users (
   warns_why TEXT
 )`).run();
 
+db.prepare(`CREATE TABLE IF NOT EXISTS statistics (
+  bans INTEGER,
+  kicks INTEGER,
+  mutes INTEGER,
+  warns INTEGER
+)`).run();
+
+db.prepare("INSERT INTO statistics (bans, kicks, mutes, warns) VALUES (0, 0, 0, 0)").run();
+
 console.log("инициализирована база данных");
 
 export default db;

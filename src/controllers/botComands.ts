@@ -17,6 +17,9 @@ composer.command("help", chatMW, (ctx) => helpCommandsController.help(ctx));
 composer.hears(/!помощь/, chatMW, (ctx) => helpCommandsController.help(ctx));
 composer.command("settings", chatMW, (ctx) => helpCommandsController.settings(ctx));
 composer.hears(/!настройки/, chatMW, (ctx) => helpCommandsController.settings(ctx));
+composer.command("statistics", chatMW, (ctx) => helpCommandsController.statistics(ctx));
+composer.hears(/!статистика/, chatMW, (ctx) => helpCommandsController.statistics(ctx));
+
 composer.on("message", codeMW, (ctx) => settingsController.rememberChat(ctx));
 
 export default composer;

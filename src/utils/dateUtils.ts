@@ -1,11 +1,9 @@
 import { DateTime, Duration } from "luxon";
 
 class DateUtils {
-   private FORMAT: string;
    private TIME_ZONE: string; 
 
   constructor(timeZone: string) {
-    this.FORMAT = "yyyy-MM-dd HH:mm";
     this.TIME_ZONE = timeZone;
   }
 
@@ -17,24 +15,45 @@ class DateUtils {
     return date.toSeconds();
   }
 
-  async stringToUNIX(string: string): Promise<number> {
-    return await this.dateToUNIX(await this.stringToDate(string));
-  }
-
   async UNIXToDate(unix: number): Promise<DateTime> {
     return DateTime.fromSeconds(unix);
   }
 
-  async stringToDate(string: string): Promise<DateTime> {
-    return DateTime.fromFormat(string, this.FORMAT);
-  }
-
-  async dateToString(date: DateTime): Promise<string> {
-    return date.toFormat(this.FORMAT);
-  }
-
   async UNIXToString(unix: number): Promise<string> {
-    return await this.dateToString(await this.UNIXToDate(unix));
+    const duration = Duration.fromMillis(unix / 1000);
+    const years = duration.get("years");
+    const months = duration.get("months");
+    const days = duration.get("days");
+
+    let result: string = "";
+    switch (years) {
+      case 1:
+        result += `${years} год `;
+      case 2:
+        result += `${years} года `;
+      default:
+        result += `${years} лет `;
+    } 
+
+    switch (months) {
+      case 1:
+        result += `${months} месяц `;
+      case 2:
+        result += `${months} месяца `;
+      default:
+        result += `${months} месяцев `;
+    }
+
+    switch (days) {
+      case 1:
+        result += `${days} день`;
+      case 2:
+        result += `${days} дня`;
+      default:
+        result += `${days} дней`;
+    }
+
+    return result;
   }
 
   async getDuration(elements: string[]): Promise<number> {

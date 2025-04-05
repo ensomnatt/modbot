@@ -1,11 +1,11 @@
 import { Context, MiddlewareFn } from "telegraf";
-import { Model } from "../model/model";
+import { ChatModel } from "../models/chatModel";
 
-const model = new Model();
+const chatModel = new ChatModel();
 
 export const startMW: MiddlewareFn<Context> = async (ctx, next) => {
   console.log(`пользователь ${ctx.from?.username} запустил бота`);
-  const chat = await model.chatInfo();
+  const chat = await chatModel.chatInfo();
   const chatID = chat?.chatID;
 
   if (ctx.chat?.type === "private") {
@@ -21,12 +21,12 @@ export const codeMW: MiddlewareFn<Context> = async (ctx, next) => {
   let text;
   if (ctx.message && "text" in ctx.message) text = ctx.message.text;
 
-  const chat = await model.chatInfo();
+  const chat = await chatModel.chatInfo();
   if (chat?.code === text) return next();
 };
 
 export const chatMW: MiddlewareFn<Context> = async (ctx, next) => {
-  const botChat = await model.chatInfo();
+  const botChat = await chatModel.chatInfo();
   const botChatID = botChat?.chatID;
 
   if (botChatID === ctx.chat?.id) return next();

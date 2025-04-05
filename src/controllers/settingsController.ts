@@ -1,34 +1,34 @@
 import { Context } from "telegraf";
-import { Model } from "../model/model";
+import { ChatModel } from "../models/chatModel";
 import DateUtils from "../utils/dateUtils";
 import View from "../view/view";
 import { nanoid } from "nanoid";
 import ParseUtils from "../utils/parseUtils";
 
 class SettingsController {
-  private model: Model;
+  private chatModel: ChatModel;
   private dateUtils: DateUtils;
 
   constructor() {
-    this.model = new Model();
+    this.chatModel = new ChatModel();
     this.dateUtils = new DateUtils("");
   }
 
   async initialize() {
-    const chat = await this.model.chatInfo();
+    const chat = await this.chatModel.chatInfo();
     this.dateUtils = new DateUtils(chat?.timeZone || "");
   }
 
   async start(ctx: Context) {
     console.log(`бот был запущен впервые`);
     const code = nanoid(5);
-    await this.model.code(code);
+    await this.chatModel.code(code);
     await View.startMessage(ctx, code);
   }
 
   async rememberChat(ctx: Context) {
     const chatID = ctx.chat?.id || 0;
-    await this.model.chat(chatID);
+    await this.chatModel.chat(chatID);
     console.log(`бот был добавлен в группу ${chatID}`);
     await View.firstMessage(ctx);
   }
@@ -43,7 +43,7 @@ class SettingsController {
     const maxWarns = parseInt(text.split(" ")[maxWarnsIndex], 10);
     if (typeof maxWarns !== "number") await View.maxWarnsError(ctx);
 
-    await this.model.maxWarns(maxWarns);
+    await this.chatModel.warnsMax(maxWarns);
     await View.maxWarns(ctx, maxWarns);
     console.log(`пользователь @${ctx.from?.username} изменил максимальное количество варнов`);
   }
@@ -56,7 +56,7 @@ class SettingsController {
 
     const time = parsedText.join(" ");
     if (time.includes("бесконечно")) {
-      await this.model.warnsPeriod(0);
+      await this.chatModel.warnsPeriod(0);
       await View.warnsPeriod(ctx);
       return;
     }
@@ -79,7 +79,7 @@ class SettingsController {
       return;
     }
 
-    await this.model.warnsPeriod(await this.dateUtils.getDuration(parsedText));
+    await this.chatModel.warnsPeriod(await this.dateUtils.getDuration(parsedText));
     await View.warnsPeriod(ctx);
 
     console.log(`пользователь @${ctx.from?.username} изменил длительность варна`);

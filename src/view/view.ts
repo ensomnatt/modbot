@@ -32,6 +32,10 @@ class View {
     await ctx.reply(`максимальное количество варнов для бана - ${warnsMax}\nдлительность варнов по дефолту: ${warnsPeriod}`);
   }
 
+  static async statisticsMessage(ctx: Context, bans: number, kicks: number, mutes: number, warns: number) {
+    await ctx.reply(`забанено: ${bans}\nкикнуто: ${kicks}\nзамучено: ${mutes}\nвыдано варнов: ${warns}`);
+  }
+
   static async maxWarns(ctx: Context, maxWarns: number) {
     await ctx.reply(`количество варнов изменено на ${maxWarns}`);
   }
