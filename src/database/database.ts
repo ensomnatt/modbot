@@ -3,11 +3,11 @@ import Database from "better-sqlite3";
 const db = new Database("src/database/modBot.db");
 
 db.prepare(`CREATE TABLE IF NOT EXISTS chat (
-  chat_id INTEGER DEFAULT NULL,
-  warns_max INTEGER DEFAULT 3,
-  warns_period INTEGER DEFAULT 0,
-  time_zone TEXT DEFAULT 'Europe/Moscow',
-  code TEXT DEFAULT NULL
+  chat_id INTEGER,
+  warns_max INTEGER,
+  warns_period INTEGER,
+  time_zone TEXT,
+  code TEXT
 )`).run();
 
 db.prepare(`CREATE TABLE IF NOT EXISTS users (
@@ -23,11 +23,22 @@ db.prepare(`CREATE TABLE IF NOT EXISTS users (
 )`).run();
 
 db.prepare(`CREATE TABLE IF NOT EXISTS statistics (
-  bans INTEGER DEFAULT 0,
-  kicks INTEGER DEFAULT 0,
-  mutes INTEGER DEFAULT 0,
-  warns INTEGER DEFAULT 0
+  bans INTEGER,
+  kicks INTEGER,
+  mutes INTEGER,
+  warns INTEGER
 )`).run();
+
+let result
+result = db.prepare("SELECT COUNT(*) AS count FROM chat").get() as { count: number };
+if (!result.count) {
+  db.prepare("INSERT INTO chat (chat_id, warns_max, warns_period, time_zone, code) VALUES (NULL, 3, 0, 'Europe/Moscow', NULL)").run();
+}
+
+result = db.prepare("SELECT COUNT(*) AS count FROM statistics").get() as { count: number };
+if (!result.count) {
+  db.prepare("INSERT INTO statistics (bans, kicks, mutes, warns) VALUES (0, 0, 0, 0)").run();
+}
 
 console.log("инициализирована база данных");
 

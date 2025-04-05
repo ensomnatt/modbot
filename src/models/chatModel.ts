@@ -1,19 +1,19 @@
 import db from "../database/database";
 
 export interface Chat {
-  chatID: number;
+  chatID: number | null;
   warnsMax: number;
   warnsPeriod: number;
   timeZone: string;
-  code: string;
+  code: string | null;
 }
 
 interface ChatData {
-  chat_id: number;
+  chat_id: number | null;
   warns_max: number;
   warns_period: number;
   time_zone: string;
-  code: string;
+  code: string | null;
 }
 
 export class ChatModel {

@@ -44,6 +44,10 @@ class View {
     await ctx.reply(`длительность варнов изменена`)
   }
 
+  static async banMessage(ctx: Context, username: string) {
+    await ctx.reply(`пользователь @${username} был забанен`);
+  }
+
   static async warnsPeriodError(ctx: Context) {
     await ctx.reply("использование: /warnsperiod 5 лет 5 месяцев 5 дней / длительность варнов 5 лет 5 месяцев 5 дней");
   }
@@ -52,8 +56,12 @@ class View {
     await ctx.reply("использование: /maxwarns 5 / максимум варнов 5");
   }
 
-  static async banMessage(ctx: Context, username: string) {
-    await ctx.reply(`пользователь @${username} был забанен`);
+  static async banReplyError(ctx: Context) {
+    await ctx.reply("использование: /ban / !бан / /ban 5 лет / !бан 5 лет / /ban нехороший / !бан нехороший / /ban 5 лет нехороший / !бан 5 лет нехороший");
+  }
+
+  static async banError(ctx: Context) {
+    await ctx.reply("использование: /ban @PavelDurov / !бан @PavelDurov / /ban @PavelDurov 5 лет / !бан @PavelDurov 5 лет / /ban @PavelDurov нехороший / !бан @PavelDurov нехороший / /ban @PavelDurov 5 лет нехороший / !бан @PavelDurov 5 лет нехороший");
   }
 }
 

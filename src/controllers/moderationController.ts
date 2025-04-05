@@ -48,12 +48,17 @@ class ModerationController {
         const why = text.split(" ").slice(1).join(" ").replace(periodStr, "").trim();
         let banPeriod;
         if (period.length !== 0) {
+          if (!await ParseUtils.hasTime(periodStr)) {
+            await View.banReplyError(ctx);
+            return;
+          }
           banPeriod = await this.dateUtils.getDuration(period)
         } else {
           banPeriod = 0;
         }
 
         await this.statisticsModel.updateStatistics("bans");
+        if (!await this.usersModel.checkIfUserExists(userID)) await this.usersModel.add(userID);
         if (why && banPeriod) {
           await this.usersModel.ban(userID, why, banPeriod);
           await View.banMessage(ctx, username);

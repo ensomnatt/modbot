@@ -2,8 +2,32 @@ import db from "../database/database";
 
 //костыль для получения инфы о варнах
 interface WarnData {
-  warns: number,
-  warns_why: string
+  warns: number;
+  warns_why: string;
+}
+
+export interface User {
+  userID: number;
+  banned: boolean;
+  bannedWhy: string | null;
+  banPeriod: number | null;
+  muted: boolean;
+  mutedWhy: string | null;
+  mutePeriod: number | null;
+  warns: number;
+  warnsWhy: string[] | null;
+}
+
+interface UserData {
+  user_id: number | null;
+  banned: number;
+  banned_why: string | null;
+  ban_period: number | null;
+  muted: number;
+  muted_why: string | null;
+  mute_period: number | null;
+  warns: number;
+  warns_why: string | null;
 }
 
 export class UsersModel {
@@ -13,6 +37,16 @@ export class UsersModel {
       console.log(`добавлен новый пользователь: ${userID}`);
     } catch (error) {
       console.error(`ошибка при добавлении пользователя: ${error}`);
+    }
+  }
+
+  async checkIfUserExists(userID: number): Promise<boolean | null> {
+    try {
+      const result = db.prepare("SELECT COUNT(*) AS count FROM users WHERE user_id = ?").get(userID) as { count: number };
+      return result.count > 0;
+    } catch (error) {
+      console.error(`ошибка при проверке на наличие пользователя в бд: ${error}`);
+      return null;
     }
   }
 
