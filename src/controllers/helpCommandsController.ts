@@ -26,18 +26,19 @@ class HelpCommandsController {
   
   async settings(ctx: Context) {
     try {
-      const warnsMax = await this.chatModel.getWarnsMax();
-      if (warnsMax === null) throw new Error("warnsMax is null");
-      const warnsPeriod = await this.chatModel.getWarnsPeriod();
-      if (warnsPeriod === null) throw new Error("warnsPeriod is null");
-      let parsedWarnsPeriod: string = warnsPeriod.toString();
-      if (warnsPeriod === 0) {
+      console.log(`пользователь @${ctx.from?.username} вызвал команду /settings`);
+      const chat = await this.chatModel.chatInfo();
+      if (chat === null) throw new Error("chat is null");
+      if (chat.warnsMax === null) throw new Error("warnsMax is null");
+      if (chat.warnsPeriod === null) throw new Error("warnsPeriod is null");
+      let parsedWarnsPeriod: string = chat.warnsPeriod.toString();
+      if (chat.warnsPeriod === 0) {
         parsedWarnsPeriod = "бесконечно";
       } else {
-        parsedWarnsPeriod = await this.dateUtils.UNIXToString(warnsPeriod);
+        parsedWarnsPeriod = await this.dateUtils.UNIXToString(chat.warnsPeriod);
       }
 
-      await View.settingsMessage(ctx, warnsMax, parsedWarnsPeriod);
+      await View.settingsMessage(ctx, chat.warnsMax, parsedWarnsPeriod);
     } catch (error) {
       console.error(`ошибка при вызове команды /settings: ${error}`);
     }

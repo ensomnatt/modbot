@@ -79,26 +79,4 @@ export class ChatModel {
       return null;
     }
   }
-
-  async getWarnsMax(): Promise<number | null> {
-    try {
-      const maxWarns = await db.prepare("SELECT (warns_max) FROM chat").get() as number;
-      console.log("получено максимальное количество варнов")
-      return maxWarns;
-    } catch(error) {
-      console.error(`ошибка при получении максимального количества варнов ${error}`)
-      return null;
-    }
-  }
-
-  async getWarnsPeriod(): Promise<number | null> {
-    try {
-      const warnsPeriod = await db.prepare("SELECT (warns_period) FROM chat").get() as number;
-      console.log("получена длительность варнов");
-      return warnsPeriod;
-    } catch (error) {
-      console.error(`ошибка при получении длительности варнов: ${error}`);
-      return null;
-    }
-  }
 }

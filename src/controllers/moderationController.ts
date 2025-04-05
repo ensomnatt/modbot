@@ -43,35 +43,18 @@ class ModerationController {
         if (username === undefined) throw new Error("username is undefined");
         if (userID === undefined) throw new Error("userID is undefined");
 
-        let period = await ParseUtils.parseDuration(text);
-        const periodStr = period.join(" ");
-        const why = text.split(" ").slice(1).join(" ").replace(periodStr, "").trim();
+        //причина и время бана
+        const {why, period} = await ParseUtils.parseBan(text, true);
         let banPeriod;
         if (period.length !== 0) {
-          if (!await ParseUtils.hasTime(periodStr)) {
-            await View.banReplyError(ctx);
-            return;
-          }
-          banPeriod = await this.dateUtils.getDuration(period)
+          banPeriod = await this.dateUtils.getDuration(period);
         } else {
           banPeriod = 0;
         }
 
         await this.statisticsModel.updateStatistics("bans");
         if (!await this.usersModel.checkIfUserExists(userID)) await this.usersModel.add(userID);
-        if (why && banPeriod) {
-          await this.usersModel.ban(userID, why, banPeriod);
-          await View.banMessage(ctx, username);
-        } else if (why) {
-          await this.usersModel.ban(userID, why, undefined);
-          await View.banMessage(ctx, username);
-        } else if (banPeriod) {
-          await this.usersModel.ban(userID, undefined, banPeriod);
-          await View.banMessage(ctx, username);
-        } else {
-          await this.usersModel.ban(userID, undefined, undefined);
-          await View.banMessage(ctx, username);
-        }
+        await this.usersModel.ban(userID, why, banPeriod);
       }
     } catch (error) {
       console.error(`ошибка при вызове команды /ban: ${error}`);

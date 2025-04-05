@@ -41,10 +41,10 @@ class SettingsController {
     if (text.startsWith("максимум")) maxWarnsIndex = 2;
 
     const maxWarns = parseInt(text.split(" ")[maxWarnsIndex], 10);
-    if (typeof maxWarns !== "number") await View.maxWarnsError(ctx);
+    if (typeof maxWarns !== "number") await View.warnsMaxError(ctx);
 
     await this.chatModel.warnsMax(maxWarns);
-    await View.maxWarns(ctx, maxWarns);
+    await View.warnsMax(ctx, maxWarns);
     console.log(`пользователь @${ctx.from?.username} изменил максимальное количество варнов`);
   }
 

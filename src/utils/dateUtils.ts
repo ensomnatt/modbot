@@ -20,44 +20,63 @@ class DateUtils {
   }
 
   async UNIXToString(unix: number): Promise<string> {
-    const duration = Duration.fromMillis(unix / 1000);
-    const years = duration.get("years");
-    const months = duration.get("months");
-    const days = duration.get("days");
-
+    let seconds = unix;
+    const minutes = Math.floor(seconds / 60);
+    seconds %= 60;
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    const days = Math.floor(hours / 24);
+    const remainingHours = hours % 24;
+    const years = Math.floor(days / 365);
+    const remainingDays = days % 365;
+    
     let result: string = "";
-    switch (years) {
-      case 1:
-        result += `${years} год `;
-      case 2:
-        result += `${years} года `;
-      default:
-        result += `${years} лет `;
-    } 
 
-    switch (months) {
-      case 1:
-        result += `${months} месяц `;
-      case 2:
-        result += `${months} месяца `;
-      default:
-        result += `${months} месяцев `;
+    if (years > 0) {
+      result += `${years} ${await this.getYearString(years)} `;
+    }
+    if (remainingDays > 0) {
+      result += `${remainingDays} ${await this.getDayString(remainingDays)} `;
+    }
+    if (remainingHours > 0) {
+      result += `${remainingHours} ${await this.getHourString(remainingHours)} `;
+    }
+    if (remainingMinutes > 0) {
+      result += `${remainingMinutes} ${await this.getMinuteString(remainingMinutes)}`;
     }
 
-    switch (days) {
-      case 1:
-        result += `${days} день`;
-      case 2:
-        result += `${days} дня`;
-      default:
-        result += `${days} дней`;
-    }
+    if (result === "") result = "меньше минуты";
 
+    console.log(result);
     return result;
   }
 
+  async getYearString(years: number): Promise<string> {
+    if (years === 1) return "год";
+    if (years >= 2 && years <= 4) return "года";
+    return "лет";
+  }
+
+  async getDayString(days: number): Promise<string> {
+    if (days === 1) return "день";
+    if (days >= 2 && days <= 4) return "дня";
+    return "дней";
+  }
+
+  async getHourString(hours: number): Promise<string> {
+    if (hours === 1) return "час";
+    if (hours >= 2 && hours <= 4) return "часа";
+    return "часов";
+  }
+
+  async getMinuteString(minutes: number): Promise<string> {
+    if (minutes === 1) return "минута";
+    if (minutes >= 2 && minutes <= 4) return "минуты";
+    return "минут";
+  }
+
   async getDuration(elements: string[]): Promise<number> {
-    let duration = {years: 0, months: 0, days: 0};
+    let duration = {years: 0, months: 0, days: 0, hours: 0, minutes: 0};
 
     for (let i = 0; i < elements.length; i += 2) {
       const number = parseInt(elements[i], 10);
@@ -69,6 +88,10 @@ class DateUtils {
         duration.months += number;
       } else if (unit === "день" || unit === "дня" || unit === "дней") {
         duration.days += number;
+      } else if (unit === "час" || unit === "часа" || unit === "часов") {
+        duration.hours += number;
+      } else if (unit === "минута" || unit === "минуты" || unit === "минут") {
+        duration.minutes += number;
       }
     }
 
