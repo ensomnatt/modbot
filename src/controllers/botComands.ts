@@ -22,12 +22,14 @@ composer.command("settings", chatMW, (ctx) => helpCommandsController.settings(ct
 composer.hears(/!настройки/, chatMW, (ctx) => helpCommandsController.settings(ctx));
 composer.command("statistics", chatMW, (ctx) => helpCommandsController.statistics(ctx));
 composer.hears(/!статистика/, chatMW, (ctx) => helpCommandsController.statistics(ctx));
-composer.command("ban", chatMW, adminMW, (ctx) => moderationController.ban(ctx));
-composer.hears(/!бан/, chatMW, adminMW, (ctx) => moderationController.ban(ctx));
+composer.command("ban", chatMW, adminMW, (ctx) => moderationController.command(ctx, "ban"));
+composer.hears(/!бан/, chatMW, adminMW, (ctx) => moderationController.command(ctx, "ban"));
 composer.command("unban", chatMW, adminMW, (ctx) => moderationController.unBan(ctx));
 composer.hears(/!разбан/, chatMW, adminMW, (ctx) => moderationController.unBan(ctx));
-composer.command("kick", chatMW, adminMW, (ctx) => moderationController.ban(ctx));
-composer.hears(/!кик/, chatMW, adminMW, (ctx) => moderationController.ban(ctx));
+composer.command("kick", chatMW, adminMW, (ctx) => moderationController.command(ctx, "kick"));
+composer.hears(/!кик/, chatMW, adminMW, (ctx) => moderationController.command(ctx, "kick"));
+composer.command("warn", chatMW, adminMW, (ctx) => moderationController.command(ctx, "warn"));
+composer.hears(/!варн/, chatMW, adminMW, (ctx) => moderationController.command(ctx, "warn"));
 
 composer.on("message", codeMW, (ctx) => settingsController.rememberChat(ctx));
 

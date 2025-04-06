@@ -54,14 +54,17 @@ class ModerationController {
         switch (commandName) {
           case "ban":
             await this.ban(ctx, userID, username, why, commandPeriod);
+            break;
           case "kick":
             await this.kick(ctx, userID, username);
+            break;
           case "warn":
             await this.warn(ctx, userID, username, why, commandPeriod);
+            break;
         }
       }
     } catch (error) {
-      console.error(`ошибка при вызове команды /ban: ${error}`);
+      console.error(`ошибка при вызове команды /${commandName}: ${error}`);
     }
   }
 
@@ -79,14 +82,17 @@ class ModerationController {
 
   async warn(ctx: Context, userID: number, username: string, why: string, period: number) {
     const user = await this.usersModel.getUser(userID);
+
     const chat = await this.chatModel.chatInfo();
     if (!user) throw new Error("user is null");
     user.warns += 1;
     if (user.warns === chat?.warnsMax) {
       await this.ban(ctx, userID, username, why, period);
+      return;
     }
+
     await this.usersModel.warn(userID, user?.warns, why, period);
-    await View.warnMessage(ctx, username || "");
+    await View.warnMessage(ctx, username);
   } 
 
   async unBan(ctx: Context) {
