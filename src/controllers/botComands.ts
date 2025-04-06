@@ -26,6 +26,8 @@ composer.command("ban", chatMW, adminMW, (ctx) => moderationController.ban(ctx))
 composer.hears(/!бан/, chatMW, adminMW, (ctx) => moderationController.ban(ctx));
 composer.command("unban", chatMW, adminMW, (ctx) => moderationController.unBan(ctx));
 composer.hears(/!разбан/, chatMW, adminMW, (ctx) => moderationController.unBan(ctx));
+composer.command("kick", chatMW, adminMW, (ctx) => moderationController.ban(ctx));
+composer.hears(/!кик/, chatMW, adminMW, (ctx) => moderationController.ban(ctx));
 
 composer.on("message", codeMW, (ctx) => settingsController.rememberChat(ctx));
 

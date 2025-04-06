@@ -1,5 +1,6 @@
 import { Context } from "telegraf";
 import botMessages from "../config/texts";
+import { bold } from "telegraf/typings/format";
 
 class View {
   static async startMessage(ctx: Context, code: string) {
@@ -37,6 +38,14 @@ class View {
   static async unBanMessage(ctx: Context, username: string) {
     await ctx.sendMessage(botMessages.unBan(username));
   }
+
+  static async kickMessage(ctx: Context, username: string) {
+    await ctx.sendMessage(botMessages.kick(username));
+  }
+
+  static async warnMessage(ctx: Context, username: string) {
+    await ctx.sendMessage(botMessages.warn(username));
+  } 
 
   static async gropError(ctx: Context) {
     await ctx.reply(botMessages.gropError);

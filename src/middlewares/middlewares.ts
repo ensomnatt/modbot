@@ -9,7 +9,7 @@ export const startMW: MiddlewareFn<Context> = async (ctx, next) => {
   const chatID = chat?.chatID;
 
   if (ctx.chat?.type === "private") {
-    if (!chatID) {
+    if (chatID === 0) {
       return next();
     } else {
       await ctx.sendMessage("привет, я бот для модерации кф, и я уже добавлен в группу");

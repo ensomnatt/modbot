@@ -26,6 +26,8 @@ const botMessages = {
   banError: "использование: /ban @PavelDurov / !бан @PavelDurov / /ban @PavelDurov 5 лет / !бан @PavelDurov 5 лет / /ban @PavelDurov нехороший / !бан @PavelDurov нехороший / /ban @PavelDurov 5 лет нехороший / !бан @PavelDurov 5 лет нехороший",
   unBan: (username: string) => `пользователь @${username} был разбанен`,
   gropError: "разбанить пользователя можно только в супергруппе или обсуждении канала",
+  kick: (username: string) => `пользователь @${username} был кикнут из группы`,
+  warn: (username: string) => `пользователю @${username} был выдан варн`,
 }
 
 export default botMessages;

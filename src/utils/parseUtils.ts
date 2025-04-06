@@ -25,7 +25,7 @@ class ParseUtils {
     }
   }
 
-  static async parseBan(text: string, isReply: boolean): Promise<{why: string, period: string[]}> {
+  static async parseCommand(text: string, isReply: boolean): Promise<{why: string, period: string[]}> {
     let period = await ParseUtils.parseDuration(text);
     const periodStr = period.join(" ");
     let why;

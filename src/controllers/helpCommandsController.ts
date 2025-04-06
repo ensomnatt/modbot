@@ -58,10 +58,6 @@ class HelpCommandsController {
       console.error(`ошибка при вызове команды /statistics: ${error}`);
     }
   }
-
-  async users(ctx: Context) {
-    const users = await this.usersModel.getUsers();
-  }
 }
 
 export default HelpCommandsController;

@@ -16,7 +16,7 @@ export interface User {
   mutePeriod: number | null;
   warns: number;
   warnsWhy: string[] | null;
-  warnsPeriod: number | null;
+  warnsPeriod: number[] | null;
 }
 
 interface UserData {
@@ -29,7 +29,7 @@ interface UserData {
   mute_period: number | null;
   warns: number;
   warns_why: string | null;
-  warns_period: number | null;
+  warns_period: string | null;
 }
 
 export class UsersModel {
@@ -42,12 +42,46 @@ export class UsersModel {
     }
   }
 
+  async getUser(userID: number): Promise<User | null> {
+    try {
+      const userRaw = await db.prepare("SELECT * FROM users WHERE user_id = ?").get(userID) as UserData;
+      if (!userRaw.user_id) throw new Error("userID is null");
+
+      let user: User = {
+        userID: userRaw.user_id,
+        banned: false,
+        bannedWhy: userRaw.banned_why,
+        banPeriod: userRaw.ban_period,
+        muted: false,
+        mutedWhy: userRaw.muted_why,
+        mutePeriod: userRaw.mute_period,
+        warns: userRaw.warns,
+        warnsWhy: userRaw.warns_why?.split(",") || null,
+        warnsPeriod: null
+      }
+
+      if (!userRaw.warns_period?.length) {
+        user.warnsPeriod = null;
+        return user;
+      }
+
+      for (const warnPeriod of userRaw.warns_period) {
+        user.warnsPeriod?.push(parseInt(warnPeriod, 10));
+      }
+
+      return user;
+    } catch (error) {
+      console.error(`ошибка при получении информации о пользователе: ${error}`);
+      return null;
+    }
+  }
+
   async getUsers(): Promise<User[] | null> {
     try {
       const usersRaw = db.prepare("SELECT * FROM users").all() as UserData[];
       let users: User[] = [];
       for (const userRaw of usersRaw) {
-        if (userRaw.user_id === null) throw new Error("userID is null");
+        if (!userRaw.user_id) throw new Error("userID is null");
 
         let user: User = {
           userID: userRaw.user_id,
@@ -58,12 +92,22 @@ export class UsersModel {
           mutedWhy: userRaw.muted_why,
           mutePeriod: userRaw.mute_period,
           warns: userRaw.warns,
-          warnsPeriod: userRaw.warns_period,
           warnsWhy: userRaw.warns_why?.split(",") || null,
+          warnsPeriod: null,
         }
 
         if (userRaw.banned) user.banned = true;
         if (userRaw.muted) user.muted = true;
+
+        
+        if (!userRaw.warns_period?.length) {
+          user.warnsPeriod = null;
+          continue;
+        }
+
+        for (const warnPeriod of userRaw.warns_period) {
+          user.warnsPeriod?.push(parseInt(warnPeriod, 10));
+        }
 
         users.push(user);
       }
@@ -125,15 +169,50 @@ export class UsersModel {
     }
   }
 
-  async warn(userID: number, warn_count: number, why?: string) {
+  async warn(userID: number, warnsCount: number, why?: string, period?: number) {
     try {
-      if (!why) {
-        db.prepare("UPDATE users SET warns = ? WHERE user_id = ?").run(warn_count, userID);
-        console.log(`выдан варн пользователю ${userID} без причины`);
-      } else {
-        why += ","
-        db.prepare("UPDATE users SET warns = ?, warns_why = ? WHERE user_id = ?").run(why, userID);
+      const user = await this.getUser(userID);
+      if (!user) throw new Error("user is null");
+
+      if (why) {
+        if (!user.warnsWhy) {
+          const warnsWhy = [why]
+          user.warnsWhy = warnsWhy;
+        }
+
+        user.warnsWhy[user.warnsWhy.length-1] += ",";
+        user.warnsWhy.push(why);
+      }
+
+      let warnsPeriodStr: string[] = [];
+
+      if (period) {
+        if (!user.warnsPeriod) {
+          const warnsPeriod = [period];
+          user.warnsPeriod = warnsPeriod;
+        }
+
+        for (let warnPeriod of user.warnsPeriod) {
+          let warnPeriodStr = warnPeriod.toString();
+          warnPeriodStr += ",";
+          warnsPeriodStr.push(warnPeriodStr);
+        }
+
+        warnsPeriodStr.push(period.toString());
+      }
+
+      if (why && period) {
+        db.prepare("UPDATE users SET warns = ?, warns_why = ?, warns_period = ? WHERE user_id = ?").run(warnsCount, user.warnsWhy, warnsPeriodStr, userID);
+        console.log(`выдан варн пользователю ${userID} на ${period} по причине ${why}`);
+      } else if (why) {
+        db.prepare("UPDATE users SET warns = ?, warns_why = ? WHERE user_id = ?").run(warnsCount, user.warnsWhy, userID);
         console.log(`выдан варн пользователю ${userID} по причине ${why}`)
+      } else if (period) {
+        db.prepare("UPDATE users SET warns = ?, warns_period = ? WHERE user_id = ?").run(warnsCount, warnsPeriodStr);
+        console.log(`выдан варн пользователю @${userID} без причины на ${period}`);
+      } else {
+        db.prepare("UPDATE users SET warns = ? WHERE user_id = ?").run(warnsCount, userID);
+        console.log(`выдан варн пользователю @${userID} без причины`);
       }
     } catch (error) {
       console.error(`ошибка при муте пользователя: ${error}`);
@@ -160,10 +239,10 @@ export class UsersModel {
 
   async unWarn(userID: number) {
     try {
-      const [_warns, warnsWhy] = await this.getWarns(userID);
-      if (warnsWhy === null) throw new Error("warnsWhy is null");
-      if (warnsWhy !== "") {
-        const newWarnsWhy = warnsWhy.split(",").slice(1).join(",");
+      const user = await this.getUser(userID);
+      if (!user) throw new Error("user if null");
+      if (user.warnsWhy?.length) {
+        const newWarnsWhy = user.warnsWhy.slice(1);
         db.prepare("UPDATE users SET warns = warns - 1, warns_why = ? WHERE user_id = ?").run(newWarnsWhy, userID);
       } else {
         db.prepare("UPDATE users SET warns = warns - 1 WHERE user_id = ?").run(userID);
@@ -172,18 +251,6 @@ export class UsersModel {
       console.log(`пользователю ${userID} был снят варн`);
     } catch (error) {
       console.error(`ошибка при снятии варна с пользователя: ${error}`);
-    }
-  }
-
-  async getWarns(userID: number): Promise<[number | null, string | null]> {
-    try {
-      const rawData = await db.prepare("SELECT (warns, warns_why) FROM users WHERE user_id = ?").get(userID) as WarnData;
-
-      console.log(`получена информация о варнах пользователя ${userID}`);
-      return [rawData.warns, rawData.warns_why]
-    } catch (error) {
-      console.log(`ошибка при получении информации о варнах: ${error}`);
-      return [null, null];
     }
   }
 }
