@@ -14,20 +14,29 @@ const botMessages = {
   /warn [юзернейм, время, причина] / !варн [юзернейм, время, причина] - выдать варн\n 
   /unban [юзернейм] / !разбан [юзернейм] - разбан пользователя\n 
   /unmute [юзернейм] / !размут [юзернейм] - размут пользователя\n 
-  /unwarn [юзернейм] / !снять варн [юзернейм] - снять первый варн из списка варнов\n`,
+  /unwarn [юзернейм, номер варна] / !снять варн [юзернейм, номер варна] - снять варн\n`,
   settings: (warnsMax: number, warnsPeriod: string) => `максимальное количество варнов для бана - ${warnsMax}\nдлительность варнов по дефолту: ${warnsPeriod}`,
   statistics: (bans: number, kicks: number, mutes: number, warns: number) => `забанено: ${bans}\nкикнуто: ${kicks}\nзамучено: ${mutes}\nвыдано варнов: ${warns}`,
   warnsMax: (warnsMax: number) => `количество варнов изменено на ${warnsMax}`,
   warnsPeriod: "длительность варнов изменена",
-  ban: (username: string) => `пользователь @${username} был забанен`,
   warnsPeriodError: "использование: /warnsperiod 5 лет 5 месяцев 5 дней / длительность варнов 5 лет 5 месяцев 5 дней",
   warnsMaxError: "использование: /maxwarns 5 / максимум варнов 5",
   banReplyError: "использование: /ban / !бан / /ban 5 лет / !бан 5 лет / /ban нехороший / !бан нехороший / /ban 5 лет нехороший / !бан 5 лет нехороший",
   banError: "использование: /ban @PavelDurov / !бан @PavelDurov / /ban @PavelDurov 5 лет / !бан @PavelDurov 5 лет / /ban @PavelDurov нехороший / !бан @PavelDurov нехороший / /ban @PavelDurov 5 лет нехороший / !бан @PavelDurov 5 лет нехороший",
-  unBan: (username: string) => `пользователь @${username} был разбанен`,
+  kickReplyError: "использование: /kick / !кик",
+  kickError: "использование: /kick @PavelDurov / !кик @PavelDurov",
+  muteReplyError: "использование: /mute / !мут / /mute 5 лет / !мут 5 лет / /mute нехороший / !мут нехороший / /mute 5 лет нехороший / !мут 5 лет нехороший",
+  muteError: "использование: /mute @PavelDurov / !мут @PavelDurov / /mute @PavelDurov 5 лет / !мут @PavelDurov 5 лет / /mute @PavelDurov нехороший / !мут @PavelDurov нехороший / /mute @PavelDurov 5 лет нехороший / !мут @PavelDurov 5 лет нехороший",
+  warnReplyError: "использование: /warn / !варн / /warn 5 лет / !варн 5 лет / /warn нехороший / !варн нехороший / /warn 5 лет нехороший / !варн 5 лет нехороший",
+  warnError: "использование: /warn @PavelDurov / !варн @PavelDurov / /warn @PavelDurov 5 лет / !варн @PavelDurov 5 лет / /warn @PavelDurov нехороший / !варн @PavelDurov нехороший / /warn @PavelDurov 5 лет нехороший / !варн @PavelDurov 5 лет нехороший",
+  unWarnReplyError: "использование: /unwarn 1 / !снять варн 1 / /unwarn все / !снять варн все",
+  unWarnError: "использование: /unwarn @shushmyr 1 / !снять варн @shushmyr 1 / /unwarn @shushmyr все / !снять варн @shushmyr все",
   gropError: "разбанить пользователя можно только в супергруппе или обсуждении канала",
+  ban: (username: string) => `пользователь @${username} был забанен`,
   kick: (username: string) => `пользователь @${username} был кикнут из группы`,
   warn: (username: string) => `пользователю @${username} был выдан варн`,
+  unBan: (username: string) => `пользователь @${username} был разбанен`,
+  unWarn: (username: string) => `с пользователя @${username} был снят варн`,
 }
 
 export default botMessages;

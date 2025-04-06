@@ -179,4 +179,22 @@ export class UsersModel {
       console.error(`ошибка при размуте пользователя: ${error}`);
     }
   }
+
+  async unWarn(userID: number, warnNumber: number, warns: number) {
+    try {
+      if (!warnNumber) {
+        for (let i = 1; i <= warns; i++) {
+          db.prepare(`UPDATE users SET warn_${i} = 0, warn_${i}_why = NULL, warn_${i}_period = NULL WHERE user_id = ?`).run(userID);
+        }
+
+        console.log(`с пользователя ${userID} были сняты все варны`);
+      } else {
+        db.prepare(`UPDATE users SET warn_${warns} = 0, warn_${warns}_why = NULL, warn_${warns}_period = NULL WHERE user_id = ?`).run(userID);
+        
+        console.log(`с пользователя ${userID} был снят варн под номером ${warns}`);
+      }
+    } catch (error) {
+      console.error(`ошибка при снятии варна: ${error}`);
+    }
+  }
 }

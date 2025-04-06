@@ -24,7 +24,7 @@ class ModerationController {
     this.dateUtils = new DateUtils(chat?.timeZone || "");
   }
 
-  async command(ctx: Context, commandName: string) {
+  async punishUser(ctx: Context, commandName: string) {
     if (commandName !== "ban" && commandName !== "kick" && commandName !== "mute" && commandName !== "warn") throw new Error("неизвестная команда");
 
     console.log(`пользователь @${ctx.from?.username} вызвал команду /${commandName}`);
@@ -65,6 +65,18 @@ class ModerationController {
       }
     } catch (error) {
       console.error(`ошибка при вызове команды /${commandName}: ${error}`);
+      if (replyMessage) {
+        switch (commandName) {
+          case "ban":
+            await View.banReplyError(ctx);
+          case "kick":
+            await View.kickReplyError(ctx);
+          case "mute":
+            await View.muteReplyError(ctx);
+          case "warn":
+            await View.warnReplyError(ctx);
+        }
+      }
     }
   }
 
@@ -116,6 +128,55 @@ class ModerationController {
       } catch (error) {
         console.error(`ошибка при вызове команды /unban: ${error}`);
       }
+    }
+  }
+
+  async unWarn(ctx: Context) {
+    console.log(`пользователь @${ctx.from?.username} вызвал команду /unwarn`);
+    let replyMessage;
+    let text;
+    if (ctx.message) {
+      if ("reply_to_message" in ctx.message) replyMessage = ctx.message.reply_to_message;
+      if ("text" in ctx.message) text = ctx.message.text;
+    }
+
+    if (!text) throw new Error("text is undefined");
+
+    if (replyMessage) {
+      try {
+        const username = replyMessage?.from?.username || "";
+        const userID = replyMessage.from?.id;
+
+        if (!userID) throw new Error("userID is undefined");
+
+        let lastWord;
+        if (text.startsWith("/")) {
+          lastWord = text.split(" ").slice(1)[0];
+        } else {
+          lastWord = text.split(" ").slice(2)[0];
+        }
+
+        let warnNumber: number;
+        if (lastWord === "все") {
+          warnNumber = 0;
+        } else {
+          warnNumber = parseInt(lastWord, 10);
+        }
+
+        const user = await this.usersModel.getUser(userID);
+        if (!user) throw new Error("user is null");
+        const warns = user.warns;
+
+        await this.usersModel.unWarn(userID, warnNumber, warns);
+        await View.unWarnMessage(ctx, username);
+      } catch (error) {
+        console.error(`ошибка при вызове команды /unwarn: ${error}`);
+        if (replyMessage) {
+          await View.unWarnReplyError(ctx);
+        } else {
+          await View.unWarnError(ctx);
+        }
+      } 
     }
   }
 }

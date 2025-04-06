@@ -58,6 +58,29 @@ class HelpCommandsController {
       console.error(`ошибка при вызове команды /statistics: ${error}`);
     }
   }
+
+  async bans(ctx: Context) {
+    try {
+      const users = await this.usersModel.getUsers();
+      if (!users) throw new Error("users is null");
+      let message: string = "";
+
+      for (let user of users) {
+        if (!user.banned) {
+          continue;
+        }
+
+        let banPeriod: string | number = user.banPeriod || "";
+        if (!user.bannedWhy) user.bannedWhy = "без причины";
+        if (!user.banPeriod) banPeriod = "навсегда";
+
+        message += `${user.userID} | ${user.bannedWhy} | ${banPeriod}\n`;
+        await View.bans(ctx, message);
+      }
+    } catch (error) {
+      console.error(`ошибка при вызове команды /bans: ${error}`);
+    }
+  }
 }
 
 export default HelpCommandsController;
