@@ -53,9 +53,15 @@ export class MetricsModel {
 
   async getUserID(username: string): Promise<number | null> {
     try {
-      const userID = await db.prepare("SELECT user_id FROM metrics WHERE username = ?").get(username) as number;
-      console.log(`получен айди по юзернейму: ${userID}, ${username}`);
-      return userID;
+      const result = await db.prepare("SELECT user_id FROM metrics WHERE username = ?").get(username) as {user_id: number};
+
+      if (result) {
+        console.log(`получен айди по юзернейму: ${result.user_id}, ${username}`);
+        return result.user_id;
+      } else {
+        console.log(`не найдено айди по юзернейму ${username}`);
+        return 0;
+      }
     } catch (error) {
       console.error(`ошибка при получении айди по юзернейму: ${error}`);
       return null;

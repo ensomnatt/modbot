@@ -110,6 +110,14 @@ class View {
     await ctx.reply(botMessages.unWarnError);
   }
 
+  static async unBanError(ctx: Context) {
+    await ctx.reply(botMessages.unBanError);
+  }
+
+  static async unMuteError(ctx: Context) {
+    await ctx.reply(botMessages.unMuteError);
+  }
+
   static async updateError(ctx: Context) {
     await ctx.reply(botMessages.updateError);
   }

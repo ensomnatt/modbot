@@ -1,6 +1,6 @@
 import { Telegraf } from "telegraf";
 import { BOT_TOKEN } from "./config/config";
-import composer from "./controllers/botComands";
+import composer from "./controllers/botCommands";
 
 const bot = new Telegraf(BOT_TOKEN);
 
