@@ -54,6 +54,10 @@ class View {
     await ctx.sendMessage(botMessages.unWarn(username));
   }
 
+  static async updateMessage(ctx: Context) {
+    await ctx.sendMessage(botMessages.update);
+  }
+
   static async gropError(ctx: Context) {
     await ctx.reply(botMessages.gropError);
   }
@@ -104,6 +108,10 @@ class View {
 
   static async unWarnError(ctx: Context) {
     await ctx.reply(botMessages.unWarnError);
+  }
+
+  static async updateError(ctx: Context) {
+    await ctx.reply(botMessages.updateError);
   }
 }
 

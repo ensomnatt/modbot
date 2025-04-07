@@ -3,11 +3,13 @@ import { startMW, codeMW, chatMW, adminMW } from "../middlewares/middlewares";
 import SettingsController from "./settingsController";
 import HelpCommandsController from "./helpCommandsController";
 import ModerationController from "./moderationController";
+import MetricsController from "./metricsController";
 
 const composer = new Composer();
 const settingsController = new SettingsController();
 const helpCommandsController = new HelpCommandsController();
 const moderationController = new ModerationController();
+const metricsController = new MetricsController();
 settingsController.initialize();
 moderationController.initialize();
 
@@ -47,5 +49,7 @@ composer.command("unwarn", chatMW, adminMW, (ctx) => moderationController.unWarn
 composer.hears(/!снять варн/, chatMW, adminMW, (ctx) => moderationController.unWarn(ctx));
 
 composer.on("message", codeMW, (ctx) => settingsController.rememberChat(ctx));
+
+composer.command("update", chatMW, (ctx) => metricsController.startWork(ctx));
 
 export default composer;
