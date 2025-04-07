@@ -12,9 +12,12 @@ class MetricsController {
 
   async startWork(ctx: Context) {
     if (this.intervalID === null) {
+      console.log("метрика была запущена");
+      await View.updateMessage(ctx);
+
       this.intervalID = setInterval(async () => {
         await this.work(ctx);
-      }, 60 * 1000);
+      }, 20 * 1000);
     } else {
       await View.updateError(ctx);
     }
