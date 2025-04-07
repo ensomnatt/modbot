@@ -31,7 +31,7 @@ db.prepare(`CREATE TABLE IF NOT EXISTS statistics (
 db.prepare(`CREATE TABLE IF NOT EXISTS metrics (
   user_id INTEGER NOT NULL,
   username TEXT NOT NULL
-)`)
+)`).run();
 
 let result
 result = db.prepare("SELECT COUNT(*) AS count FROM chat").get() as { count: number };

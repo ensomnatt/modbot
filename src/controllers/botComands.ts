@@ -10,6 +10,7 @@ const settingsController = new SettingsController();
 const helpCommandsController = new HelpCommandsController();
 const moderationController = new ModerationController();
 const metricsController = new MetricsController();
+
 settingsController.initialize();
 moderationController.initialize();
 
@@ -48,7 +49,7 @@ composer.hears(/!разбан/, chatMW, adminMW, (ctx) => moderationController.u
 composer.command("unwarn", chatMW, adminMW, (ctx) => moderationController.unWarn(ctx));
 composer.hears(/!снять варн/, chatMW, adminMW, (ctx) => moderationController.unWarn(ctx));
 
-composer.on("message", codeMW, (ctx) => settingsController.rememberChat(ctx));
+composer.on("message", codeMW, chatMW, (ctx) => metricsController.saveMetric(ctx));
 
 composer.command("update", chatMW, (ctx) => metricsController.startWork(ctx));
 

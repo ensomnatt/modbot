@@ -1,7 +1,10 @@
 import { Context, MiddlewareFn } from "telegraf";
 import { ChatModel } from "../models/chatModel";
+import SettingsController from "../controllers/settingsController";
 
 const chatModel = new ChatModel();
+const settingsController = new SettingsController();
+settingsController.initialize();
 
 export const startMW: MiddlewareFn<Context> = async (ctx, next) => {
   console.log(`пользователь ${ctx.from?.username} запустил бота`);
@@ -22,14 +25,17 @@ export const codeMW: MiddlewareFn<Context> = async (ctx, next) => {
   if (ctx.message && "text" in ctx.message) text = ctx.message.text;
 
   const chat = await chatModel.chatInfo();
-  if (chat?.code === text) return next();
+  if (chat?.code === text) {
+    await settingsController.rememberChat(ctx);
+    return;
+  } else {
+    return next();
+  }
 };
 
 export const chatMW: MiddlewareFn<Context> = async (ctx, next) => {
   const botChat = await chatModel.chatInfo();
-  const botChatID = botChat?.chatID;
-
-  if (botChatID === ctx.chat?.id) return next();
+  if (botChat?.chatID === ctx.chat?.id) return next();
 };
 
 export const adminMW: MiddlewareFn<Context> = async (ctx, next) => {
