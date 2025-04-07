@@ -7,16 +7,8 @@ class DateUtils {
     this.TIME_ZONE = timeZone;
   }
 
-  async getCurrentTime(): Promise<DateTime> {
-    return DateTime.now().setZone(this.TIME_ZONE);
-  }
-
-  async dateToUNIX(date: DateTime): Promise<number> {
-    return date.toSeconds();
-  }
-
-  async UNIXToDate(unix: number): Promise<DateTime> {
-    return DateTime.fromSeconds(unix);
+  async getCurrentTime(): Promise<number> {
+    return DateTime.now().setZone(this.TIME_ZONE).toSeconds();
   }
 
   async UNIXToString(unix: number): Promise<string> {

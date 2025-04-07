@@ -51,6 +51,17 @@ export class MetricsModel {
     }
   }
 
+  async getUserID(username: string): Promise<number | null> {
+    try {
+      const userID = await db.prepare("SELECT user_id FROM metrics WHERE username = ?").get(username) as number;
+      console.log(`получен айди по юзернейму: ${userID}, ${username}`);
+      return userID;
+    } catch (error) {
+      console.error(`ошибка при получении айди по юзернейму: ${error}`);
+      return null;
+    }
+  }
+
   async updateUsername(userID: number, newUsername: string) {
     try {
       db.prepare("UPDATE metrics SET username = ? WHERE user_id = ?").run(newUsername, userID);

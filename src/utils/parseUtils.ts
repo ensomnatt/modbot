@@ -25,17 +25,17 @@ class ParseUtils {
     }
   }
 
-  static async parseCommand(text: string, isReply: boolean): Promise<{why: string, period: string[]}> {
-    let period = await ParseUtils.parseDuration(text);
-    const periodStr = period.join(" ");
+  static async parseCommand(text: string, isReply: boolean): Promise<{why: string, periodStr: string[]}> {
+    let periodStr = await ParseUtils.parseDuration(text);
+    const periodStrJoin = periodStr.join(" ");
     let why;
     if (isReply) {
-      why = text.split(" ").slice(1).join(" ").replace(periodStr, "").trim();
+      why = text.split(" ").slice(1).join(" ").replace(periodStrJoin, "").trim();
     } else {
-      why = text.split(" ").slice(2).join(" ").replace(periodStr, "").trim();
+      why = text.split(" ").slice(2).join(" ").replace(periodStrJoin, "").trim();
     }
 
-    return {why: why, period: period}
+    return {why: why, periodStr: periodStr}
   }
 }
 

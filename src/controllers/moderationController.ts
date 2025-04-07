@@ -5,17 +5,20 @@ import { Context } from "telegraf";
 import ParseUtils from "../utils/parseUtils";
 import DateUtils from "../utils/dateUtils";
 import View from "../view/view";
+import { MetricsModel } from "../models/metricsModel";
 
 class ModerationController {
   private chatModel: ChatModel;
   private usersModel: UsersModel;
   private statisticsModel: StatisticsModel;
+  private metricsModel: MetricsModel;
   private dateUtils: DateUtils;
 
   constructor() {
     this.chatModel = new ChatModel();
     this.usersModel = new UsersModel();
     this.statisticsModel = new StatisticsModel();
+    this.metricsModel = new MetricsModel();
     this.dateUtils = new DateUtils("");
   }
 
@@ -25,11 +28,8 @@ class ModerationController {
   }
 
   async punishUser(ctx: Context, commandName: string) {
-    if (commandName !== "ban" && commandName !== "kick" && commandName !== "mute" && commandName !== "warn") throw new Error("неизвестная команда");
-
     console.log(`пользователь @${ctx.from?.username} вызвал команду /${commandName}`);
-    let replyMessage;
-    let text;
+    let replyMessage, text, userID, username;
     if (ctx.message) {
       if ("reply_to_message" in ctx.message) replyMessage = ctx.message.reply_to_message;
       if ("text" in ctx.message) text = ctx.message.text;
@@ -37,45 +37,80 @@ class ModerationController {
 
     try {
       if (!text) throw new Error("text is undefined");
-      
+
+      let commandDetails: {why: string, periodStr: string[]};
       if (replyMessage) {
-        const username = replyMessage.from?.username || "";
-        const userID = replyMessage.from?.id;
+        username = replyMessage.from?.username || "";
+        userID = replyMessage.from?.id;
 
-        if (!userID) throw new Error("userID is undefined");
+        commandDetails = await ParseUtils.parseCommand(text, true);
+      } else {
+        username = text.split(" ")[1]; 
+        userID = await this.metricsModel.getUserID(username);
 
-        //причина и время команды
-        const {why, period} = await ParseUtils.parseCommand(text, true);
-        const commandPeriod = period.length ? await this.dateUtils.getDuration(period) : 0;
+        commandDetails = await ParseUtils.parseCommand(text, false);
+      }
 
-        await this.statisticsModel.updateStatistics(`${commandName}s`);
-        if (!await this.usersModel.checkIfUserExists(userID)) await this.usersModel.add(userID);
+      if (userID === 0) {
+        await View.userNotFound(ctx);
+        return;
+      } else if (!userID) throw new Error("userID is undefined or null");
 
-        switch (commandName) {
-          case "ban":
-            await this.ban(ctx, userID, username, why, commandPeriod);
-            break;
-          case "kick":
-            await this.kick(ctx, userID, username);
-            break;
-          case "warn":
-            await this.warn(ctx, userID, username, why, commandPeriod);
-            break;
-        }
+      const periodNumber = commandDetails.periodStr.length ? await this.dateUtils.getDuration(commandDetails.periodStr) : 0;
+
+      await this.statisticsModel.updateStatistics(`${commandName}s`);
+      if (!await this.usersModel.checkIfUserExists(userID)) await this.usersModel.add(userID);
+
+      let end: number = 0;
+      if (!periodNumber) end = await this.dateUtils.getCurrentTime() + periodNumber;
+
+      switch (commandName) {
+        case "ban":
+          await this.ban(ctx, userID, username, commandDetails.why, end);
+          break;
+        case "kick":
+          await this.kick(ctx, userID, username);
+          break;
+        case "warn":
+          await this.warn(ctx, userID, username, commandDetails.why, end);
+          break;
       }
     } catch (error) {
-      console.error(`ошибка при вызове команды /${commandName}: ${error}`);
-      if (replyMessage) {
-        switch (commandName) {
-          case "ban":
-            await View.banReplyError(ctx);
-          case "kick":
-            await View.kickReplyError(ctx);
-          case "mute":
-            await View.muteReplyError(ctx);
-          case "warn":
-            await View.warnReplyError(ctx);
-        }
+      await this.handlePunishUserError(replyMessage, commandName, error, ctx);
+    }
+  }
+
+  async handlePunishUserError(replyMessage: any, commandName: string, error: unknown, ctx: Context) {
+    console.error(`ошибка при вызове команды /${commandName}: ${error}`);
+    if (replyMessage) {
+      switch (commandName) {
+        case "ban":
+          await View.banReplyError(ctx);
+          break;
+        case "kick":
+          await View.kickReplyError(ctx);
+          break;
+        case "mute":
+          await View.muteReplyError(ctx);
+          break;
+        case "warn":
+          await View.warnReplyError(ctx);
+          break;
+      }
+    } else {
+      switch (commandName) {
+        case "ban":
+          await View.banError(ctx);
+          break;
+        case "kick":
+          await View.kickError(ctx);
+          break;
+        case "mute":
+          await View.muteError(ctx);
+          break;
+        case "warn":
+          await View.warnError(ctx);
+          break;
       }
     }
   }

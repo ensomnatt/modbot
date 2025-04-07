@@ -96,19 +96,19 @@ export class UsersModel {
     }
   }
 
-  async ban(userID: number, why?: string, period?: number) {
+  async ban(userID: number, why?: string, end?: number) {
     try {
-      if (why && period) {
-        db.prepare("UPDATE users SET banned = 1, banned_why = ?,ban_period = ? WHERE user_id = ?").run(why, period, userID);
-        console.log(`забанен пользователь ${userID} по причине ${why} на ${period}`);
+      if (why && end) {
+        db.prepare("UPDATE users SET banned = 1, banned_why = ?,ban_end = ? WHERE user_id = ?").run(why, end, userID);
+        console.log(`забанен пользователь ${userID} по причине ${why} до ${end}`);
       } else if (why) {
-        db.prepare("UPDATE users SET banned = 1, banned_why = ?, ban_period = 0 WHERE user_id = ?").run(why, userID);
+        db.prepare("UPDATE users SET banned = 1, banned_why = ?, ban_end = 0 WHERE user_id = ?").run(why, userID);
         console.log(`забанен пользователь ${userID} по причине ${why} навсегда`);
-      } else if (period) {
-        db.prepare("UPDATE users SET banned = 1, ban_period = ? WHERE user_id = ?").run(period, userID);
-        console.log(`забанен пользователь ${userID} без причины на ${period}`);
+      } else if (end) {
+        db.prepare("UPDATE users SET banned = 1, ban_end = ? WHERE user_id = ?").run(end, userID);
+        console.log(`забанен пользователь ${userID} без причины до ${end}`);
       } else {
-        db.prepare("UPDATE users SET banned = 1, ban_period = 0 WHERE user_id = ?").run(userID);
+        db.prepare("UPDATE users SET banned = 1, ban_end = 0 WHERE user_id = ?").run(userID);
         console.log(`забанен пользователь ${userID} без причины навсегда`)
       }
     } catch (error) {
@@ -116,19 +116,19 @@ export class UsersModel {
     }
   }
 
-  async mute(userID: number, why?: string, period?: string) {
+  async mute(userID: number, why?: string, end?: string) {
     try {
-      if (why && period) {
-        db.prepare("UPDATE users SET muted = 1, muted_why = ?, mute_period = ? WHERE user_id = ?").run(why, period, userID);
-        console.log(`замучен пользователь ${userID} по причине ${why} на ${period}`);
+      if (why && end) {
+        db.prepare("UPDATE users SET muted = 1, muted_why = ?, mute_end = ? WHERE user_id = ?").run(why, end, userID);
+        console.log(`замучен пользователь ${userID} по причине ${why} до ${end}`);
       } else if (why) {
-        db.prepare("UPDATE users SET muted = 1, muted_why = ?, mute_period = 0 WHERE user_id = ?").run(why, userID);
+        db.prepare("UPDATE users SET muted = 1, muted_why = ?, mute_end = 0 WHERE user_id = ?").run(why, userID);
         console.log(`замучен пользователь ${userID} по причине ${why} навсегда`);
-      } else if (period) {
-        db.prepare("UPDATE users SET muted = 1, mute_period = ? WHERE user_id = ?").run(period, userID);
-        console.log(`замучен пользователь ${userID} без причины на ${period}`);
+      } else if (end) {
+        db.prepare("UPDATE users SET muted = 1, mute_end = ? WHERE user_id = ?").run(end, userID);
+        console.log(`замучен пользователь ${userID} без причины до ${end}`);
       } else {
-        db.prepare("UPDATE users SET muted = 1, mute_period = 0 WHERE user_id = ?").run(userID);
+        db.prepare("UPDATE users SET muted = 1, mute_end = 0 WHERE user_id = ?").run(userID);
         console.log(`замучен пользователь ${userID} без причины навсегда`);
       }
     } catch (error) {
@@ -136,28 +136,28 @@ export class UsersModel {
     }
   }
 
-  async warn(userID: number, warns: number, why?: string, period?: number) {
+  async warn(userID: number, warns: number, why?: string, end?: number) {
     db.prepare("UPDATE users SET warns = ? WHERE user_id = ?").run(warns, userID);
 
     db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns} INTEGER`).run();
     db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns}_why TEXT`).run();
-    db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns}_period INTEGER`).run();
+    db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns}_end INTEGER`).run();
 
     db.prepare(`UPDATE users SET warn_${warns} = 1`).run();
 
     if (why) {
-      db.prepare(`UPDATE users SET warn_${warns}_why = ?, warn_${warns}_period = ? WHERE user_id = ?`).run(why, period, userID);
-      if (!period) {
+      db.prepare(`UPDATE users SET warn_${warns}_why = ?, warn_${warns}_end = ? WHERE user_id = ?`).run(why, end, userID);
+      if (!end) {
         console.log(`пользователю ${userID} был выдан варн по причине ${why} навсегда`);
       } else {
-        console.log(`пользователю ${userID} был выдан варн по причине ${why} на ${period}`);
+        console.log(`пользователю ${userID} был выдан варн по причине ${why} до ${end}`);
       }
     } else {
-      db.prepare(`UPDATE users SET warn_${warns}_period = ? WHERE user_id = ?`).run(period, userID);
-      if (!period) {
+      db.prepare(`UPDATE users SET warn_${warns}_end = ? WHERE user_id = ?`).run(end, userID);
+      if (!end) {
         console.log(`пользователю ${userID} был выдан варн без причины навсегда`);
       } else {
-        console.log(`пользователю ${userID} был выдан варн без причины на ${period}`);
+        console.log(`пользователю ${userID} был выдан варн без причины до ${end}`);
       }
     }
   }

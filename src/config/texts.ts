@@ -34,6 +34,7 @@ const botMessages = {
   unWarnError: "использование: /unwarn @shushmyr 1 / !снять варн @shushmyr 1 / /unwarn @shushmyr все / !снять варн @shushmyr все",
   gropError: "разбанить пользователя можно только в супергруппе или обсуждении канала",
   updateError: "команда уже была запущена",
+  userNotFound: "бот еще не знает этого юзернейма, потому что пользователь не писал ничего в чат после появления бота. используйте команду в контексте ответа на сообщения",
   ban: (username: string) => `пользователь @${username} был забанен`,
   kick: (username: string) => `пользователь @${username} был кикнут из группы`,
   warn: (username: string) => `пользователю @${username} был выдан варн`,

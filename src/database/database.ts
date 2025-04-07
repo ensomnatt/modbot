@@ -14,10 +14,10 @@ db.prepare(`CREATE TABLE IF NOT EXISTS users (
   user_id INTEGER NOT NULL,
   banned INTEGER DEFAULT 0,
   banned_why TEXT,
-  ban_period INTEGER DEFAULT NULL,
+  ban_end INTEGER DEFAULT NULL,
   muted INTEGER DEFAULT 0,
   muted_why TEXT DEFAULT NULL,
-  mute_period INTEGER DEFAULT NULL,
+  mute_end INTEGER DEFAULT NULL,
   warns INTEGER DEFAULT 0
 )`).run();
 
@@ -36,7 +36,7 @@ db.prepare(`CREATE TABLE IF NOT EXISTS metrics (
 let result
 result = db.prepare("SELECT COUNT(*) AS count FROM chat").get() as { count: number };
 if (!result.count) {
-  db.prepare("INSERT INTO chat (chat_id, warns_max, warns_period, time_zone, code) VALUES (NULL, 3, 0, 'Europe/Moscow', NULL)").run();
+  db.prepare("INSERT INTO chat (chat_id, warns_max, warns_end, time_zone, code) VALUES (NULL, 3, 0, 'Europe/Moscow', NULL)").run();
 }
 
 result = db.prepare("SELECT COUNT(*) AS count FROM statistics").get() as { count: number };
