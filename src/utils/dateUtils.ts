@@ -19,13 +19,19 @@ class DateUtils {
     const remainingMinutes = minutes % 60;
     const days = Math.floor(hours / 24);
     const remainingHours = hours % 24;
+
     const years = Math.floor(days / 365);
-    const remainingDays = days % 365;
-    
+    const remainingDaysAfterYears = days % 365;
+    const months = Math.floor(remainingDaysAfterYears / 30);
+    const remainingDays = remainingDaysAfterYears % 30;
+
     let result: string = "";
 
     if (years > 0) {
       result += `${years} ${await this.getYearString(years)} `;
+    }
+    if (months > 0) {
+      result += `${months} ${await this.getMonthString(months)} `;
     }
     if (remainingDays > 0) {
       result += `${remainingDays} ${await this.getDayString(remainingDays)} `;
@@ -39,7 +45,6 @@ class DateUtils {
 
     if (result === "") result = "меньше минуты";
 
-    console.log(result);
     return result;
   }
 
@@ -53,6 +58,12 @@ class DateUtils {
     if (days === 1) return "день";
     if (days >= 2 && days <= 4) return "дня";
     return "дней";
+  }
+
+  async getMonthString(months: number): Promise<string> {
+    if (months === 1) return "месяц";
+    if (months >= 2 && months <= 4) return "месяца";
+    return "месяцев";
   }
 
   async getHourString(hours: number): Promise<string> {

@@ -33,7 +33,7 @@ class SettingsController {
     await View.firstMessage(ctx);
   }
 
-  async maxWarns(ctx: Context) {
+  async warnsMax(ctx: Context) {
     let text: string = "";
     if (ctx.message && "text" in ctx.message) text = ctx.message.text;
 

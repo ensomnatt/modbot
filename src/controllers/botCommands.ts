@@ -16,8 +16,8 @@ moderationController.initialize();
 
 composer.command("start", startMW, (ctx) => settingsController.start(ctx));
 
-composer.command("maxwarns", chatMW, adminMW, (ctx) => settingsController.maxWarns(ctx));
-composer.hears(/!максимум варнов/, chatMW, adminMW, (ctx) => settingsController.maxWarns(ctx));
+composer.command("maxwarns", chatMW, adminMW, (ctx) => settingsController.warnsMax(ctx));
+composer.hears(/!максимум варнов/, chatMW, adminMW, (ctx) => settingsController.warnsMax(ctx));
 
 composer.command("warnsperiod", chatMW, adminMW, (ctx) => settingsController.warnsPeriod(ctx));
 composer.hears(/!длительность варнов/, chatMW, adminMW, (ctx) => settingsController.warnsPeriod(ctx));

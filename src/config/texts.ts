@@ -16,7 +16,7 @@ const botMessages = {
   /unban [юзернейм] / !разбан [юзернейм] - разбан пользователя\n 
   /unmute [юзернейм] / !размут [юзернейм] - размут пользователя\n 
   /unwarn [юзернейм, номер варна] / !снять варн [юзернейм, номер варна] - снять варн\n`,
-  settings: (warnsMax: number, warnsPeriod: string) => `максимальное количество варнов для бана - ${warnsMax}\nдлительность варнов по дефолту: ${warnsPeriod}`,
+  settings: (warnsMax: number, warnsPeriod: string) => `максимальное количество варнов для бана: ${warnsMax}\nдлительность варнов по дефолту: ${warnsPeriod}`,
   statistics: (bans: number, kicks: number, mutes: number, warns: number) => `забанено: ${bans}\nкикнуто: ${kicks}\nзамучено: ${mutes}\nвыдано варнов: ${warns}`,
   warnsMax: (warnsMax: number) => `количество варнов изменено на ${warnsMax}`,
   warnsPeriod: "длительность варнов изменена",
