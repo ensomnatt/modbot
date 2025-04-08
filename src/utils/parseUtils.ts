@@ -1,9 +1,22 @@
 import { Context } from "telegraf";
 import { MetricsModel } from "../models/metricsModel";
 import View from "../view/view";
+import DateUtils from "./dateUtils";
 
-class ParseUtils {
-  static async parseDuration(text: string): Promise<string[]> {
+export interface DefaultCommandDetails {
+  replyMessage: any;
+  text: string;
+  username: string;
+  userID: number;
+}
+
+export interface PunishCommandDetails {
+  why: string;
+  end: number;
+}
+
+export class ParseUtils {
+  static async parseDuration(text: string): Promise<string> {
     const splittedText = text.split(" ");
 
     const allowedUnits = new Set([
@@ -15,39 +28,31 @@ class ParseUtils {
       "бесконечно"
     ]);
 
-    return splittedText.filter(word => /^\d+$/.test(word) || allowedUnits.has(word));
+    return splittedText.filter(word => /^\d+$/.test(word) || allowedUnits.has(word)).join(" ");
   }
 
-  static async hasTime(text: string): Promise<boolean> {
-    const regex = /(\d+)\s+(год|года|лет|месяц|месяца|месяцев|день|дня|дней|час|часа|часов|минута|минуты|минут)/g;
-    const match = regex.exec(text);
-
-    if (!match) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  static async parsePunishCommandDetails(text: string, isReply: boolean): Promise<{why: string, periodStr: string[]}> {
-    let periodStr = await ParseUtils.parseDuration(text);
-    const periodStrJoin = periodStr.join(" ");
+  static async parsePunishCommandDetails(defaultCommandDetails: DefaultCommandDetails, dateUtils: DateUtils): Promise<PunishCommandDetails> {
+    const periodStr = await this.parseDuration(defaultCommandDetails.text);
     let why;
-    if (isReply) {
-      why = text.split(" ").slice(1).join(" ").replace(periodStrJoin, "").trim();
-    } else {
-      why = text.split(" ").slice(2).join(" ").replace(periodStrJoin, "").trim();
-    }
+    why = defaultCommandDetails.text.split(" ").slice(1).join(" ").replace(defaultCommandDetails.username, "").replace(periodStr, "");
 
-    return {why: why, periodStr: periodStr}
+    const periodArr = periodStr.split(" ");
+    const period = periodArr.length ? await dateUtils.getDuration(periodArr) : 0;
+    const end = period ? await dateUtils.getCurrentTime() + period : 0;
+
+    const punishCommandDetails: PunishCommandDetails = {
+      why: why,
+      end: end
+    }
+    return punishCommandDetails;
   }
 
   static async parseDefaultCommandDetails(
     ctx: Context,
     commandName: string,
     metricsModel: MetricsModel,
-    isLongUnwarn?: boolean
-  ): Promise<{replyMessage: any, text: string, username: string, userID: number} | null> 
+    isLongCommand?: boolean
+  ): Promise<DefaultCommandDetails | null> 
   {
     let replyMessage, text, userID, username;
     if (ctx.message) {
@@ -62,25 +67,31 @@ class ParseUtils {
         username = replyMessage.from?.username || "";
         userID = replyMessage.from?.id;
       } else {
-        if (isLongUnwarn) {
-          username = text.split(" ")[2].slice(2);
+        if (isLongCommand) {
+          username = text.split(" ").slice(2)[0];
         } else {
-          username = text.split(" ")[1].slice(1);
+          username = text.split(" ").slice(1)[0];
         }
         userID = await metricsModel.getUserID(username);
       }
 
+      if (!username.startsWith("@")) throw new Error("incorrect username");
       if (userID === 0) {
         await View.userNotFound(ctx);
         return null;
       } else if (!userID) throw new Error("userID is undefined or null");
 
-      return {replyMessage: replyMessage, text: text, username: username, userID: userID};
+
+      const commandDetails: DefaultCommandDetails = {
+        replyMessage: replyMessage,
+        text: text,
+        username: username,
+        userID: userID
+      }
+      return commandDetails;
     } catch (error) {
       console.error(`ошибка при вызове команды /${commandName}: ${error}`);
       return null;
     }
   }
 }
-
-export default ParseUtils;

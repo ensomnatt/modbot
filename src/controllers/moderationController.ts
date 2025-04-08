@@ -2,10 +2,12 @@ import { ChatModel } from "../models/chatModel";
 import { StatisticsModel } from "../models/statisticsModel";
 import { UsersModel } from "../models/usersModel";
 import { Context } from "telegraf";
-import ParseUtils from "../utils/parseUtils";
+import { ParseUtils, DefaultCommandDetails, PunishCommandDetails } from "../utils/parseUtils";
 import DateUtils from "../utils/dateUtils";
 import View from "../view/view";
 import { MetricsModel } from "../models/metricsModel";
+
+interface CommandDetails extends PunishCommandDetails, DefaultCommandDetails {}
 
 class ModerationController {
   private chatModel: ChatModel;
@@ -30,42 +32,39 @@ class ModerationController {
   async punishUser(ctx: Context, commandName: string) {
     console.log(`пользователь @${ctx.from?.username} вызвал команду /${commandName}`);
 
-    const commandDetails = await ParseUtils.parseDefaultCommandDetails(ctx, "ban", this.metricsModel);
+    let commandDetails: CommandDetails | null = null;
+    let defaulCommandDetails, punishCommandDetails;
+
     try {
-      if (!commandDetails) throw new Error("commandDetails is null");
-      if (!commandDetails.text) throw new Error("text is undefined");
+      defaulCommandDetails = await ParseUtils.parseDefaultCommandDetails(
+        ctx, commandName, this.metricsModel, false
+      );
+      if (!defaulCommandDetails) throw new Error("defaultCommandDetails is null");
+      punishCommandDetails = await ParseUtils.parsePunishCommandDetails(
+        defaulCommandDetails, this.dateUtils
+      );
 
-      let punishCommandDetails;
-      if (commandDetails?.replyMessage) {
-        punishCommandDetails = await ParseUtils.parsePunishCommandDetails(commandDetails?.text, true);
-      } else {
-        punishCommandDetails = await ParseUtils.parsePunishCommandDetails(commandDetails?.text, false);
-      }
+      commandDetails = {
+        replyMessage: defaulCommandDetails.replyMessage,
+        text: defaulCommandDetails.text,
+        username: defaulCommandDetails.username,
+        userID: defaulCommandDetails.userID,
+        why: punishCommandDetails.why,
+        end: punishCommandDetails.end
+      } 
 
-      const periodNumber = punishCommandDetails.periodStr.length ? await this.dateUtils.getDuration(punishCommandDetails.periodStr) : 0;
+      if(!commandDetails) throw new Error("commandDetails is null");
 
-      await this.statisticsModel.updateStatistics(`${commandName}s`);
+      await this.statisticsModel.updateStatistics(`${commandDetails}`);
       if (!await this.usersModel.checkIfUserExists(commandDetails.userID)) await this.usersModel.add(commandDetails.userID);
-
-      let end: number = 0;
-      if (!periodNumber) end = await this.dateUtils.getCurrentTime() + periodNumber;
 
       switch (commandName) {
         case "ban":
-          await this.ban(
-            ctx, commandDetails.userID,
-            commandDetails.username, punishCommandDetails.why, end
-          );
-          break;
+          await this.ban(ctx, commandDetails);
         case "kick":
-          await this.kick(ctx, commandDetails.userID, commandDetails.username);
-          break;
+          await this.kick(ctx, commandDetails);
         case "warn":
-          await this.warn(
-            ctx, commandDetails.userID, 
-            commandDetails.username, punishCommandDetails.why, end
-          );
-          break;
+          await this.warn(ctx, commandDetails);
       }
     } catch (error) {
       await this.handlePunishUserError(commandDetails?.replyMessage, commandName, error, ctx);
@@ -107,90 +106,38 @@ class ModerationController {
     }
   }
 
-  async ban(ctx: Context, userID: number, username: string, why: string, period: number) {
-    await this.usersModel.ban(userID, why, period);
-    await ctx.banChatMember(userID);
-    await View.banMessage(ctx, username);
+  async ban(ctx: Context, commandDetails: CommandDetails) {
+    await this.usersModel.ban(
+      commandDetails.userID, commandDetails.why, commandDetails.end
+    );
+    await ctx.banChatMember(commandDetails.userID);
+    await View.banMessage(ctx, commandDetails.username);
   }
 
-  async kick(ctx: Context, userID: number, username: string) {
-    await ctx.banChatMember(userID);
-    if (ctx.chat?.type !== "group") ctx.unbanChatMember(userID);
-    await View.kickMessage(ctx, username);
+  async kick(ctx: Context, commandDetails: CommandDetails) {
+    await ctx.banChatMember(commandDetails.userID);
+    if (ctx.chat?.type !== "group") ctx.unbanChatMember(commandDetails.userID);
+    await View.kickMessage(ctx, commandDetails.username);
   }
 
-  async warn(ctx: Context, userID: number, username: string, why: string, period: number) {
-    const user = await this.usersModel.getUser(userID);
+  async warn(ctx: Context, commandDetails: CommandDetails) {
+    const user = await this.usersModel.getUser(commandDetails.userID);
 
     const chat = await this.chatModel.chatInfo();
     if (!user) throw new Error("user is null");
     user.warns += 1;
     if (user.warns === chat?.warnsMax) {
-      await this.ban(ctx, userID, username, why, period);
-      await this.usersModel.unWarn(userID, 0, user.warns);
+      await this.ban(ctx, commandDetails);
+      await this.usersModel.unWarn(commandDetails.userID, 0, user.warns);
       return;
     }
 
-    await this.usersModel.warn(userID, user?.warns, why, period);
-    await View.warnMessage(ctx, username);
+    await this.usersModel.warn(
+      commandDetails.userID, user?.warns,
+      commandDetails.why, commandDetails.end
+    );
+    await View.warnMessage(ctx, commandDetails.username);
   } 
-
-  async unBan(ctx: Context) {
-    console.log(`пользователь @${ctx.from?.username} вызвал команду /unban`);
-
-    const commandDetails = await ParseUtils.parseDefaultCommandDetails(ctx, "unban", this.metricsModel);
-
-    try {
-      if (!commandDetails) throw new Error("commandDetails is null");
-
-      if (ctx.chat?.type === "supergroup" || ctx.chat?.type === "channel") {
-        await this.usersModel.unBan(commandDetails.userID);
-        await ctx.unbanChatMember(commandDetails.userID);
-        await View.unBanMessage(ctx, commandDetails.username)
-      } else {
-        await View.gropError(ctx);
-      }
-    } catch (error) {
-      console.error(`ошибка при вызове команды /unban: ${error}`);
-      await View.unBanError(ctx);
-    }
-  }
-
-  async unWarn(ctx: Context) {
-    console.log(`пользователь @${ctx.from?.username} вызвал команду /unwarn`);
-
-    const commandDetails = await ParseUtils.parseDefaultCommandDetails(ctx, "unwarn", this.metricsModel);
-    try {
-      if (!commandDetails) throw new Error("commandDetails is null");
-      let lastWord;
-      if (commandDetails.text.startsWith("/")) {
-        lastWord = commandDetails.text.split(" ").slice(1)[0];
-      } else {
-        lastWord = commandDetails.text.split(" ").slice(2)[0];
-      }
-
-      let warnNumber: number;
-      if (lastWord === "все") {
-        warnNumber = 0;
-      } else {
-        warnNumber = parseInt(lastWord, 10);
-      }
-
-      const user = await this.usersModel.getUser(commandDetails.userID);
-      if (!user) throw new Error("user is null");
-      const warns = user.warns;
-
-      await this.usersModel.unWarn(commandDetails.userID, warnNumber, warns);
-      await View.unWarnMessage(ctx, commandDetails.username);
-    } catch (error) {
-      console.error(`ошибка при вызове команды /unwarn: ${error}`);
-      if (commandDetails?.replyMessage) {
-        await View.unWarnReplyError(ctx);
-      } else {
-        await View.unWarnError(ctx);
-      }
-    }
-  }
 }
 
 export default ModerationController;
