@@ -50,8 +50,7 @@ export class ParseUtils {
   static async parseDefaultCommandDetails(
     ctx: Context,
     commandName: string,
-    metricsModel: MetricsModel,
-    isLongCommand?: boolean
+    metricsModel: MetricsModel
   ): Promise<DefaultCommandDetails | null> 
   {
     let replyMessage, text, userID, username;
@@ -59,6 +58,9 @@ export class ParseUtils {
       if ("reply_to_message" in ctx.message) replyMessage = ctx.message.reply_to_message;
       if ("text" in ctx.message) text = ctx.message.text;
     }
+
+    let isLongCommand: boolean = false;
+    if (commandName === "unwarn" && commandName.startsWith("!")) isLongCommand = true;
 
     try {
       if (!text) throw new Error("text is undefined");

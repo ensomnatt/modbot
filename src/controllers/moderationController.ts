@@ -37,7 +37,7 @@ class ModerationController {
 
     try {
       defaulCommandDetails = await ParseUtils.parseDefaultCommandDetails(
-        ctx, commandName, this.metricsModel, false
+        ctx, commandName, this.metricsModel
       );
       if (!defaulCommandDetails) throw new Error("defaultCommandDetails is null");
       punishCommandDetails = await ParseUtils.parsePunishCommandDetails(
@@ -138,6 +138,56 @@ class ModerationController {
     );
     await View.warnMessage(ctx, commandDetails.username);
   } 
+
+  async unBan(ctx: Context) {
+    try {
+      const commandDetails = await ParseUtils.parseDefaultCommandDetails(
+        ctx, "unban", this.metricsModel
+      );
+
+      if (!commandDetails) throw new Error("commandDetails is null");
+
+      await this.usersModel.unBan(commandDetails.userID);
+      await View.unBanMessage(ctx, commandDetails.username);
+    } catch (error) {
+      console.error(`ошибка при вызове команды /unban: ${error}`);
+      await View.unBanError(ctx);
+    }
+  }
+
+  async unWarn(ctx: Context) {
+    try {
+      const commandDetails = await ParseUtils.parseDefaultCommandDetails(
+        ctx, "unwarn", this.metricsModel
+      )
+
+      if (!commandDetails) throw new Error("commandDetails is null");
+
+      const splittedText = commandDetails.text.split(" ");
+      const lastWord = splittedText[splittedText.length - 1];
+
+      let warnNumber
+      if (lastWord === "все") {
+        warnNumber = 0;
+      } else {
+        warnNumber = parseInt(lastWord, 10);
+      }
+
+      const user = await this.usersModel.getUser(commandDetails.userID);
+      if (!user) throw new Error("user is null");
+
+      if (!user.warns) {
+        await View.userHasNoWarns(ctx);
+        return;
+      }
+
+      await this.usersModel.unWarn(commandDetails.userID, warnNumber, user.warns);
+      await View.unWarnMessage(ctx, commandDetails.username);
+    } catch (error) {
+      console.error(`ошибка при вызове команды /unwarn: ${error}`);
+      await View.unWarnError(ctx);
+    }
+  }
 }
 
 export default ModerationController;

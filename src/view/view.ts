@@ -110,6 +110,10 @@ class View {
     await ctx.reply(botMessages.unWarnError);
   }
 
+  static async userHasNoWarns(ctx: Context) {
+    await ctx.reply(botMessages.userHasNoWarns);
+  }
+
   static async unBanError(ctx: Context) {
     await ctx.reply(botMessages.unBanError);
   }

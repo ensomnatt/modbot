@@ -3,7 +3,7 @@ import { ChatModel } from "../models/chatModel";
 import DateUtils from "../utils/dateUtils";
 import View from "../view/view";
 import { nanoid } from "nanoid";
-import ParseUtils from "../utils/parseUtils";
+import { ParseUtils } from "../utils/parseUtils";
 
 class SettingsController {
   private chatModel: ChatModel;
@@ -52,7 +52,8 @@ class SettingsController {
     let text: string = "";
     if (ctx.message && "text" in ctx.message) text = ctx.message.text;
 
-    const parsedText = await ParseUtils.parseDuration(text);
+    const parsedTextStr = await ParseUtils.parseDuration(text);
+    const parsedText = parsedTextStr.split(" ");
 
     if (parsedText.includes("бесконечно")) {
       await this.chatModel.warnsPeriod(0);
@@ -60,7 +61,7 @@ class SettingsController {
       return;
     }
 
-    if (!ParseUtils.hasTime(parsedText.join(" "))) {
+    if (!ParseUtils.hasTime(parsedTextStr)) {
       await View.warnsPeriodError(ctx);
       return;
     }
