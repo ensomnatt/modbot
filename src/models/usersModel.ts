@@ -4,10 +4,10 @@ export interface User {
   userID: number;
   banned: boolean;
   bannedWhy: string | null;
-  banPeriod: number | null;
+  banEnd: number | null;
   muted: boolean;
   mutedWhy: string | null;
-  mutePeriod: number | null;
+  muteEnd: number | null;
   warns: number;
 }
 
@@ -15,10 +15,10 @@ interface UserData {
   user_id: number | null;
   banned: number;
   banned_why: string | null;
-  ban_period: number | null;
+  ban_end: number | null;
   muted: number;
   muted_why: string | null;
-  mute_period: number | null;
+  mute_end: number | null;
   warns: number;
 }
 
@@ -41,10 +41,10 @@ export class UsersModel {
         userID: userRaw.user_id,
         banned: false,
         bannedWhy: userRaw.banned_why,
-        banPeriod: userRaw.ban_period,
+        banEnd: userRaw.ban_end,
         muted: false,
         mutedWhy: userRaw.muted_why,
-        mutePeriod: userRaw.mute_period,
+        muteEnd: userRaw.mute_end,
         warns: userRaw.warns,
       }
 
@@ -66,10 +66,10 @@ export class UsersModel {
           userID: userRaw.user_id,
           banned: false,
           bannedWhy: userRaw.banned_why,
-          banPeriod: userRaw.ban_period,
+          banEnd: userRaw.ban_end,
           muted: false,
           mutedWhy: userRaw.muted_why,
-          mutePeriod: userRaw.mute_period,
+          muteEnd: userRaw.mute_end,
           warns: userRaw.warns,
         }
 
@@ -164,7 +164,7 @@ export class UsersModel {
 
   async unBan(userID: number) {
     try {
-      db.prepare("UPDATE users SET banned = 0, banned_why = NULL, ban_period = NULL WHERE user_id = ?").run(userID);
+      db.prepare("UPDATE users SET banned = 0, banned_why = NULL, ban_end = NULL WHERE user_id = ?").run(userID);
       console.log(`пользователь ${userID} был разбанен`);
     } catch (error) {
       console.error(`ошибка при разбане пользователя: ${error}`);
@@ -173,7 +173,7 @@ export class UsersModel {
 
   async unMute(userID: number) {
     try {
-      db.prepare("UPDATE users SET muted = 0, muted_why = NULL, mute_period = NULL WHERE user_id = ?").run(userID);
+      db.prepare("UPDATE users SET muted = 0, muted_why = NULL, mute_end = NULL WHERE user_id = ?").run(userID);
       console.log(`пользователь ${userID} был размучен`);
     } catch (error) {
       console.error(`ошибка при размуте пользователя: ${error}`);
@@ -184,12 +184,12 @@ export class UsersModel {
     try {
       if (!warnNumber) {
         for (let i = 1; i <= warns; i++) {
-          db.prepare(`UPDATE users SET warn_${i} = 0, warn_${i}_why = NULL, warn_${i}_period = NULL WHERE user_id = ?`).run(userID);
+          db.prepare(`UPDATE users SET warn_${i} = 0, warn_${i}_why = NULL, warn_${i}_end = NULL WHERE user_id = ?`).run(userID);
         }
 
         console.log(`с пользователя ${userID} были сняты все варны`);
       } else {
-        db.prepare(`UPDATE users SET warn_${warns} = 0, warn_${warns}_why = NULL, warn_${warns}_period = NULL WHERE user_id = ?`).run(userID);
+        db.prepare(`UPDATE users SET warn_${warns} = 0, warn_${warns}_why = NULL, warn_${warns}_end = NULL WHERE user_id = ?`).run(userID);
         
         console.log(`с пользователя ${userID} был снят варн под номером ${warns}`);
       }

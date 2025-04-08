@@ -70,11 +70,11 @@ class HelpCommandsController {
           continue;
         }
 
-        let banPeriod: string | number = user.banPeriod || "";
+        let banEnd: string | number = user.banEnd || "";
         if (!user.bannedWhy) user.bannedWhy = "без причины";
-        if (!user.banPeriod) banPeriod = "навсегда";
+        if (!user.banEnd) banEnd = "навсегда";
 
-        message += `${user.userID} | ${user.bannedWhy} | ${banPeriod}\n`;
+        message += `${user.userID} | ${user.bannedWhy} | ${banEnd}\n`;
         await View.bans(ctx, message);
       }
     } catch (error) {
