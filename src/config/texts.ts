@@ -38,11 +38,12 @@ const botMessages = {
   unBanError: "использование: /unban @shushmyr / !разбан @shushmyr",
   unMuteError: "использование: /unmute @shushmyr / !размут @shushmyr",
   userHasNoWarns: "у пользователя нет варнов",
-  ban: (username: string) => `пользователь @${username} был забанен`,
-  kick: (username: string) => `пользователь @${username} был кикнут из группы`,
-  warn: (username: string) => `пользователю @${username} был выдан варн`,
-  unBan: (username: string) => `пользователь @${username} был разбанен`,
-  unWarn: (username: string) => `с пользователя @${username} был снят варн`,
+  botError: "бот не может взаимодействовать с другим ботом",
+  ban: (username: string) => `пользователь ${username} был забанен`,
+  kick: (username: string) => `пользователь ${username} был кикнут из группы`,
+  warn: (username: string) => `пользователю ${username} был выдан варн`,
+  unBan: (username: string) => `пользователь ${username} был разбанен`,
+  unWarn: (username: string) => `с пользователя ${username} был снят варн`,
   update: "бот готов к работе",
 }
 

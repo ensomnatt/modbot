@@ -129,6 +129,10 @@ class View {
   static async userNotFound(ctx: Context) {
     await ctx.reply(botMessages.userNotFound);
   }
+
+  static async botError(ctx: Context) {
+    await ctx.reply(botMessages.botError);
+  }
 }
 
 export default View;

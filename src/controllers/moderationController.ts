@@ -32,23 +32,34 @@ class ModerationController {
   async punishUser(ctx: Context, commandName: string) {
     console.log(`пользователь @${ctx.from?.username} вызвал команду /${commandName}`);
 
+    if (ctx.from?.is_bot) {
+      await View.botError(ctx);
+      return;
+    }
+
     let commandDetails: CommandDetails | null = null;
-    let defaulCommandDetails, punishCommandDetails;
+    let defaultCommandDetails, punishCommandDetails;
 
     try {
-      defaulCommandDetails = await ParseUtils.parseDefaultCommandDetails(
+      defaultCommandDetails = await ParseUtils.parseDefaultCommandDetails(
         ctx, commandName, this.metricsModel
       );
-      if (!defaulCommandDetails) throw new Error("defaultCommandDetails is null");
+
+      if (defaultCommandDetails?.userID === 0) {
+        await View.userNotFound(ctx);
+        return;
+      }
+      if (!defaultCommandDetails) throw new Error("defaulCommandDetails is null");
+
       punishCommandDetails = await ParseUtils.parsePunishCommandDetails(
-        defaulCommandDetails, this.dateUtils
+        defaultCommandDetails, this.dateUtils
       );
 
       commandDetails = {
-        replyMessage: defaulCommandDetails.replyMessage,
-        text: defaulCommandDetails.text,
-        username: defaulCommandDetails.username,
-        userID: defaulCommandDetails.userID,
+        replyMessage: defaultCommandDetails.replyMessage,
+        text: defaultCommandDetails.text,
+        username: defaultCommandDetails.username,
+        userID: defaultCommandDetails.userID,
         why: punishCommandDetails.why,
         end: punishCommandDetails.end
       } 
@@ -61,10 +72,13 @@ class ModerationController {
       switch (commandName) {
         case "ban":
           await this.ban(ctx, commandDetails);
+          break;
         case "kick":
           await this.kick(ctx, commandDetails);
+          break;
         case "warn":
           await this.warn(ctx, commandDetails);
+          break;
       }
     } catch (error) {
       await this.handlePunishUserError(commandDetails?.replyMessage, commandName, error, ctx);
@@ -140,11 +154,20 @@ class ModerationController {
   } 
 
   async unBan(ctx: Context) {
+    if (ctx.from?.is_bot) {
+      await View.botError(ctx);
+      return;
+    }
+
     try {
       const commandDetails = await ParseUtils.parseDefaultCommandDetails(
         ctx, "unban", this.metricsModel
       );
 
+      if (commandDetails?.userID === 0) {
+        await View.userNotFound(ctx);
+        return;
+      }
       if (!commandDetails) throw new Error("commandDetails is null");
 
       await this.usersModel.unBan(commandDetails.userID);
@@ -156,11 +179,20 @@ class ModerationController {
   }
 
   async unWarn(ctx: Context) {
+    if (ctx.from?.is_bot) {
+      await View.botError(ctx);
+      return;
+    }
+
     try {
       const commandDetails = await ParseUtils.parseDefaultCommandDetails(
         ctx, "unwarn", this.metricsModel
       )
 
+      if (commandDetails?.userID === 0) {
+        await View.userNotFound(ctx);
+        return;
+      }
       if (!commandDetails) throw new Error("commandDetails is null");
 
       const splittedText = commandDetails.text.split(" ");

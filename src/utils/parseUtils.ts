@@ -31,10 +31,21 @@ export class ParseUtils {
     return splittedText.filter(word => /^\d+$/.test(word) || allowedUnits.has(word)).join(" ");
   }
 
+  static async hasTime(text: string): Promise<boolean> {
+    const regex = /(\d+)\s+(год|года|лет|месяц|месяца|месяцев|день|дня|дней|час|часа|часов|минута|минуты|минут)/g;
+    const match = regex.exec(text);
+
+    if (!match) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   static async parsePunishCommandDetails(defaultCommandDetails: DefaultCommandDetails, dateUtils: DateUtils): Promise<PunishCommandDetails> {
     const periodStr = await this.parseDuration(defaultCommandDetails.text);
     let why;
-    why = defaultCommandDetails.text.split(" ").slice(1).join(" ").replace(defaultCommandDetails.username, "").replace(periodStr, "");
+    why = defaultCommandDetails.text.split(" ").slice(1).join(" ").replace(defaultCommandDetails.username, "").replace(periodStr, "").trim();
 
     const periodArr = periodStr.split(" ");
     const period = periodArr.length ? await dateUtils.getDuration(periodArr) : 0;
@@ -74,14 +85,11 @@ export class ParseUtils {
         } else {
           username = text.split(" ").slice(1)[0];
         }
-        userID = await metricsModel.getUserID(username);
+        userID = await metricsModel.getUserID(username.slice(1));
       }
 
       if (!username.startsWith("@")) throw new Error("incorrect username");
-      if (userID === 0) {
-        await View.userNotFound(ctx);
-        return null;
-      } else if (!userID) throw new Error("userID is undefined or null");
+      if (userID === null || userID === undefined) throw new Error("userID is undefined or null");
 
 
       const commandDetails: DefaultCommandDetails = {
