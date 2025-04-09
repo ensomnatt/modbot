@@ -1,6 +1,5 @@
 import { Context } from "telegraf";
 import { MetricsModel } from "../models/metricsModel";
-import View from "../view/view";
 import DateUtils from "./dateUtils";
 
 export interface DefaultCommandDetails {
@@ -70,8 +69,10 @@ export class ParseUtils {
       if ("text" in ctx.message) text = ctx.message.text;
     }
 
+    if (!text) throw new Error("text is undefined");
+
     let isLongCommand: boolean = false;
-    if (commandName === "unwarn" && commandName.startsWith("!")) isLongCommand = true;
+    if (commandName === "unwarn" && text.startsWith("!")) isLongCommand = true;
 
     try {
       if (!text) throw new Error("text is undefined");
@@ -93,7 +94,7 @@ export class ParseUtils {
 
 
       const commandDetails: DefaultCommandDetails = {
-        replyMessage: replyMessage,
+       replyMessage: replyMessage,
         text: text,
         username: username,
         userID: userID

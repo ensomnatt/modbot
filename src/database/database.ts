@@ -13,7 +13,7 @@ db.prepare(`CREATE TABLE IF NOT EXISTS chat (
 db.prepare(`CREATE TABLE IF NOT EXISTS users (
   user_id INTEGER NOT NULL,
   banned INTEGER DEFAULT 0,
-  banned_why TEXT,
+  banned_why TEXT DEFAULT NULL,
   ban_end INTEGER DEFAULT NULL,
   muted INTEGER DEFAULT 0,
   muted_why TEXT DEFAULT NULL,

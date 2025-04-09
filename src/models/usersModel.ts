@@ -96,6 +96,21 @@ export class UsersModel {
     }
   }
 
+  async checkIfColumnExists(name: string): Promise<boolean | null> {
+    try {
+      const columns = db.prepare(`PRAGMA table_info(${name})`).all() as {name: string}[];
+      
+      for (const column of columns) {
+        if (column.name === name) return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error(`ошибка при проверке на наличие колонки: ${error}`);
+      return null;
+    }
+  }
+
   async ban(userID: number, why?: string, end?: number) {
     try {
       if (why && end) {
@@ -138,10 +153,12 @@ export class UsersModel {
 
   async warn(userID: number, warns: number, why?: string, end?: number) {
     db.prepare("UPDATE users SET warns = ? WHERE user_id = ?").run(warns, userID);
-
-    db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns} INTEGER`).run();
-    db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns}_why TEXT`).run();
-    db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns}_end INTEGER`).run();
+    
+    if (!await this.checkIfColumnExists(`warn_${warns}`)) {
+      db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns} INTEGER`).run();
+      db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns}_why TEXT`).run();
+      db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns}_end INTEGER`).run();
+    }
 
     db.prepare(`UPDATE users SET warn_${warns} = 1`).run();
 
@@ -189,9 +206,9 @@ export class UsersModel {
 
         console.log(`с пользователя ${userID} были сняты все варны`);
       } else {
-        db.prepare(`UPDATE users SET warn_${warns} = 0, warn_${warns}_why = NULL, warn_${warns}_end = NULL WHERE user_id = ?`).run(userID);
+        db.prepare(`UPDATE users SET warn_${warnNumber} = 0, warn_${warnNumber}_why = NULL, warn_${warnNumber}_end = NULL WHERE user_id = ?`).run(userID);
         
-        console.log(`с пользователя ${userID} был снят варн под номером ${warns}`);
+        console.log(`с пользователя ${userID} был снят варн под номером ${warnNumber}`);
       }
     } catch (error) {
       console.error(`ошибка при снятии варна: ${error}`);

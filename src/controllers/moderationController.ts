@@ -66,7 +66,15 @@ class ModerationController {
 
       if(!commandDetails) throw new Error("commandDetails is null");
 
-      await this.statisticsModel.updateStatistics(`${commandDetails}`);
+      const chatMember = await ctx.getChatMember(commandDetails.userID);
+      switch (chatMember.status) {
+        case "kicked":
+        case "left":
+          await View.userNotFound(ctx);
+          return;
+      }
+
+      await this.statisticsModel.updateStatistics(`${commandName}s`);
       if (!await this.usersModel.checkIfUserExists(commandDetails.userID)) await this.usersModel.add(commandDetails.userID);
 
       switch (commandName) {
@@ -121,6 +129,11 @@ class ModerationController {
   }
 
   async ban(ctx: Context, commandDetails: CommandDetails) {
+    const user = await this.usersModel.getUser(commandDetails.userID);
+    if (user?.banned) {
+      await View.userAlreadyBanned(ctx, commandDetails.username);
+      return;
+    }
     await this.usersModel.ban(
       commandDetails.userID, commandDetails.why, commandDetails.end
     );
@@ -212,6 +225,8 @@ class ModerationController {
         await View.userHasNoWarns(ctx);
         return;
       }
+
+      if (warnNumber > user.warns)
 
       await this.usersModel.unWarn(commandDetails.userID, warnNumber, user.warns);
       await View.unWarnMessage(ctx, commandDetails.username);

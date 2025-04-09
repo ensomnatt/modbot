@@ -78,6 +78,10 @@ class View {
     await ctx.reply(botMessages.banError);
   }
 
+  static async userAlreadyBanned(ctx: Context, username: string) {
+    await ctx.reply(botMessages.userAlreadyBanned(username));
+  }
+
   static async kickReplyError(ctx: Context) {
     await ctx.reply(botMessages.kickReplyError);
   }
@@ -108,6 +112,10 @@ class View {
 
   static async unWarnError(ctx: Context) {
     await ctx.reply(botMessages.unWarnError);
+  }
+
+  static async incorrectWarnNumber(ctx: Context) {
+    await ctx.reply(botMessages.incorrectWarnNumber);
   }
 
   static async userHasNoWarns(ctx: Context) {

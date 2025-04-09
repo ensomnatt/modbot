@@ -38,7 +38,7 @@ class SettingsController {
     if (ctx.message && "text" in ctx.message) text = ctx.message.text;
 
     let maxWarnsIndex: number = 1;
-    if (text.startsWith("максимум")) maxWarnsIndex = 2;
+    if (text.startsWith("!")) maxWarnsIndex = 2;
 
     const maxWarns = parseInt(text.split(" ")[maxWarnsIndex], 10);
     if (typeof maxWarns !== "number") await View.warnsMaxError(ctx);
