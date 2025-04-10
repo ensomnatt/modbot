@@ -129,44 +129,57 @@ class ModerationController {
   }
 
   async ban(ctx: Context, commandDetails: CommandDetails) {
-    const user = await this.usersModel.getUser(commandDetails.userID);
-    if (user?.banned) {
-      await View.userAlreadyBanned(ctx, commandDetails.username);
-      return;
+    try {
+      const user = await this.usersModel.getUser(commandDetails.userID);
+      if (user?.banned) {
+        await View.userAlreadyBanned(ctx, commandDetails.username);
+        return;
+      }
+      await this.usersModel.ban(
+        commandDetails.userID, commandDetails.why, commandDetails.end
+      );
+      await ctx.banChatMember(commandDetails.userID);
+      await View.banMessage(ctx, commandDetails.username);
+    } catch (error) {
+      console.error(`ошибка при вызове команды /ban: ${error}`);
     }
-    await this.usersModel.ban(
-      commandDetails.userID, commandDetails.why, commandDetails.end
-    );
-    await ctx.banChatMember(commandDetails.userID);
-    await View.banMessage(ctx, commandDetails.username);
   }
 
   async kick(ctx: Context, commandDetails: CommandDetails) {
-    await ctx.banChatMember(commandDetails.userID);
-    if (ctx.chat?.type !== "group") ctx.unbanChatMember(commandDetails.userID);
-    await View.kickMessage(ctx, commandDetails.username);
+    try {
+      await ctx.banChatMember(commandDetails.userID);
+      if (ctx.chat?.type !== "group") ctx.unbanChatMember(commandDetails.userID);
+      await View.kickMessage(ctx, commandDetails.username);
+    } catch (error) {
+      console.error(`ошибка при вызове команды /kick: ${error}`);
+    }
   }
 
   async warn(ctx: Context, commandDetails: CommandDetails) {
-    const user = await this.usersModel.getUser(commandDetails.userID);
+    try {
+      const user = await this.usersModel.getUser(commandDetails.userID);
 
-    const chat = await this.chatModel.chatInfo();
-    if (!user) throw new Error("user is null");
-    user.warns += 1;
-    if (user.warns === chat?.warnsMax) {
-      await this.ban(ctx, commandDetails);
-      await this.usersModel.unWarn(commandDetails.userID, 0, user.warns);
-      return;
+      const chat = await this.chatModel.chatInfo();
+      if (!user) throw new Error("user is null");
+      user.warns += 1;
+      if (user.warns === chat?.warnsMax) {
+        await this.ban(ctx, commandDetails);
+        await this.usersModel.unWarn(commandDetails.userID, 0, user.warns);
+        return;
+      }
+
+      await this.usersModel.warn(
+        commandDetails.userID, user?.warns,
+        commandDetails.why, commandDetails.end
+      );
+      await View.warnMessage(ctx, commandDetails.username);
+    } catch (error) {
+      console.log(`ошибка при вызове команды /warn: ${error}`);
     }
-
-    await this.usersModel.warn(
-      commandDetails.userID, user?.warns,
-      commandDetails.why, commandDetails.end
-    );
-    await View.warnMessage(ctx, commandDetails.username);
   } 
 
   async unBan(ctx: Context) {
+    console.log(`пользователь @${ctx.from?.username} вызвал команду /unban`);
     if (ctx.from?.is_bot) {
       await View.botError(ctx);
       return;
@@ -192,6 +205,7 @@ class ModerationController {
   }
 
   async unWarn(ctx: Context) {
+    console.log(`пользователь @${ctx.from?.username} вызвал команду /unwarn`);
     if (ctx.from?.is_bot) {
       await View.botError(ctx);
       return;
@@ -226,7 +240,10 @@ class ModerationController {
         return;
       }
 
-      if (warnNumber > user.warns)
+      if (!await this.usersModel.checkIfColumnExists(`warn_${warnNumber}`) || !await this.usersModel.checkIfWarnTrue(commandDetails.userID, warnNumber)) {
+        await View.incorrectWarnNumber(ctx);
+        return;
+      }
 
       await this.usersModel.unWarn(commandDetails.userID, warnNumber, user.warns);
       await View.unWarnMessage(ctx, commandDetails.username);

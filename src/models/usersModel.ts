@@ -98,7 +98,7 @@ export class UsersModel {
 
   async checkIfColumnExists(name: string): Promise<boolean | null> {
     try {
-      const columns = db.prepare(`PRAGMA table_info(${name})`).all() as {name: string}[];
+      const columns = db.prepare(`PRAGMA table_info(users)`).all() as {name: string}[];
       
       for (const column of columns) {
         if (column.name === name) return true;
@@ -176,6 +176,18 @@ export class UsersModel {
       } else {
         console.log(`пользователю ${userID} был выдан варн без причины до ${end}`);
       }
+    }
+  }
+
+  async checkIfWarnTrue(userID: number, warnNumber: number): Promise<boolean | null> {
+    try {
+      const warnStatus = await db.prepare(`SELECT warn_${warnNumber} FROM users WHERE user_id = ?`).get(userID) as number;
+
+      console.log(warnStatus);
+      return warnStatus === 1;
+    } catch (error) {
+      console.error(`ошибка при проверке статуса варна: ${error}`);
+      return null;
     }
   }
 
