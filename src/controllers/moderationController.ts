@@ -10,7 +10,6 @@ import {
 import DateUtils from "../utils/dateUtils";
 import View from "../view/view";
 import { MetricsModel } from "../models/metricsModel";
-import { walkUpBindingElementsAndPatterns } from "typescript";
 
 interface CommandDetails extends PunishCommandDetails, DefaultCommandDetails {}
 
@@ -172,8 +171,9 @@ class ModerationController {
   async kick(ctx: Context, commandDetails: CommandDetails) {
     try {
       await ctx.banChatMember(commandDetails.userID);
-      if (ctx.chat?.type !== "group")
+      if (ctx.chat?.type !== "group") {
         ctx.unbanChatMember(commandDetails.userID);
+      }
       await View.kickMessage(ctx, commandDetails.username);
     } catch (error) {
       console.error(`ошибка при вызове команды /kick: ${error}`);
