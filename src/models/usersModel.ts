@@ -163,7 +163,7 @@ export class UsersModel {
 
       if (await this.checkIfWarnTrue(userID, warns)) {
         for (let i = warns; i > 0; i--) {
-          if (await this.checkIfWarnTrue(userID, warns)) {
+          if (!await this.checkIfWarnTrue(userID, i)) {
             warns = i;
             break;
           }
