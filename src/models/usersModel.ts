@@ -152,39 +152,54 @@ export class UsersModel {
   }
 
   async warn(userID: number, warns: number, why?: string, end?: number) {
-    db.prepare("UPDATE users SET warns = ? WHERE user_id = ?").run(warns, userID);
-    
-    if (!await this.checkIfColumnExists(`warn_${warns}`)) {
-      db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns} INTEGER`).run();
-      db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns}_why TEXT`).run();
-      db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns}_end INTEGER`).run();
-    }
-
-    db.prepare(`UPDATE users SET warn_${warns} = 1`).run();
-
-    if (why) {
-      db.prepare(`UPDATE users SET warn_${warns}_why = ?, warn_${warns}_end = ? WHERE user_id = ?`).run(why, end, userID);
-      if (!end) {
-        console.log(`пользователю ${userID} был выдан варн по причине ${why} навсегда`);
-      } else {
-        console.log(`пользователю ${userID} был выдан варн по причине ${why} до ${end}`);
+    try {
+      db.prepare("UPDATE users SET warns = ? WHERE user_id = ?").run(warns, userID);
+      
+      if (!await this.checkIfColumnExists(`warn_${warns}`)) {
+        db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns} INTEGER`).run();
+        db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns}_why TEXT`).run();
+        db.prepare(`ALTER TABLE users ADD COLUMN warn_${warns}_end INTEGER`).run();
       }
-    } else {
-      db.prepare(`UPDATE users SET warn_${warns}_end = ? WHERE user_id = ?`).run(end, userID);
-      if (!end) {
-        console.log(`пользователю ${userID} был выдан варн без причины навсегда`);
-      } else {
-        console.log(`пользователю ${userID} был выдан варн без причины до ${end}`);
+
+      if (await this.checkIfWarnTrue(userID, warns)) {
+        for (let i = warns; i > 0; i--) {
+          if (await this.checkIfWarnTrue(userID, warns)) {
+            warns = i;
+            break;
+          }
+        }
       }
+
+      db.prepare(`UPDATE users SET warn_${warns} = 1`).run();
+
+      if (why) {
+        db.prepare(`UPDATE users SET warn_${warns}_why = ?, warn_${warns}_end = ? WHERE user_id = ?`).run(why, end, userID);
+        if (!end) {
+          console.log(`пользователю ${userID} был выдан варн по причине ${why} навсегда`);
+        } else {
+          console.log(`пользователю ${userID} был выдан варн по причине ${why} до ${end}`);
+        }
+      } else {
+        db.prepare(`UPDATE users SET warn_${warns}_end = ? WHERE user_id = ?`).run(end, userID);
+        if (!end) {
+          console.log(`пользователю ${userID} был выдан варн без причины навсегда`);
+        } else {
+          console.log(`пользователю ${userID} был выдан варн без причины до ${end}`);
+        }
+      }
+    } catch (error) {
+      console.error(`ошибка при выдаче варна: ${error}`);
     }
   }
 
   async checkIfWarnTrue(userID: number, warnNumber: number): Promise<boolean | null> {
     try {
-      const warnStatus = await db.prepare(`SELECT warn_${warnNumber} FROM users WHERE user_id = ?`).get(userID) as number;
+      const columnName = `warn_${warnNumber}`;
+      const warn = await db.prepare(`SELECT ${columnName} FROM users WHERE user_id = ?`).get(userID) as { [key: string]: number } | undefined;
+      
+      if (!warn) return null;
 
-      console.log(warnStatus);
-      return warnStatus === 1;
+      return warn[columnName] === 1;
     } catch (error) {
       console.error(`ошибка при проверке статуса варна: ${error}`);
       return null;
@@ -216,9 +231,11 @@ export class UsersModel {
           db.prepare(`UPDATE users SET warn_${i} = 0, warn_${i}_why = NULL, warn_${i}_end = NULL WHERE user_id = ?`).run(userID);
         }
 
+        db.prepare("UPDATE users SET warns = 0 WHERE user_id = ?").run(userID);
+
         console.log(`с пользователя ${userID} были сняты все варны`);
       } else {
-        db.prepare(`UPDATE users SET warn_${warnNumber} = 0, warn_${warnNumber}_why = NULL, warn_${warnNumber}_end = NULL WHERE user_id = ?`).run(userID);
+        db.prepare(`UPDATE users SET warns = ?, warn_${warnNumber} = 0, warn_${warnNumber}_why = NULL, warn_${warnNumber}_end = NULL WHERE user_id = ?`).run(warns, userID);
         
         console.log(`с пользователя ${userID} был снят варн под номером ${warnNumber}`);
       }

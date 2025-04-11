@@ -36,7 +36,7 @@ db.prepare(`CREATE TABLE IF NOT EXISTS metrics (
 let result
 result = db.prepare("SELECT COUNT(*) AS count FROM chat").get() as { count: number };
 if (!result.count) {
-  db.prepare("INSERT INTO chat (chat_id, warns_max, warns_end, time_zone, code) VALUES (NULL, 3, 0, 'Europe/Moscow', NULL)").run();
+  db.prepare("INSERT INTO chat (chat_id, warns_max, warns_period, time_zone, code) VALUES (NULL, 3, 0, 'Europe/Moscow', NULL)").run();
 }
 
 result = db.prepare("SELECT COUNT(*) AS count FROM statistics").get() as { count: number };

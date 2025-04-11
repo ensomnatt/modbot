@@ -6,6 +6,7 @@ import { ParseUtils, DefaultCommandDetails, PunishCommandDetails } from "../util
 import DateUtils from "../utils/dateUtils";
 import View from "../view/view";
 import { MetricsModel } from "../models/metricsModel";
+import { walkUpBindingElementsAndPatterns } from "typescript";
 
 interface CommandDetails extends PunishCommandDetails, DefaultCommandDetails {}
 
@@ -160,9 +161,16 @@ class ModerationController {
       const user = await this.usersModel.getUser(commandDetails.userID);
 
       const chat = await this.chatModel.chatInfo();
+      if (!chat) throw new Error("chat is undefined");
+
+      if (commandDetails.end !== undefined && commandDetails.end === 0) commandDetails.end = chat?.warnsPeriod;
+
+      if (commandDetails.end !== 0) commandDetails.end += await this.dateUtils.getCurrentTime();
+
       if (!user) throw new Error("user is null");
       user.warns += 1;
       if (user.warns === chat?.warnsMax) {
+        user.warns -= 1;
         await this.ban(ctx, commandDetails);
         await this.usersModel.unWarn(commandDetails.userID, 0, user.warns);
         return;
@@ -225,10 +233,10 @@ class ModerationController {
       const splittedText = commandDetails.text.split(" ");
       const lastWord = splittedText[splittedText.length - 1];
 
-      let warnNumber
+      let warnNumber: number | null = null
       if (lastWord === "все") {
         warnNumber = 0;
-      } else {
+      } else if (!isNaN(parseInt(lastWord, 10)) && lastWord.trim() !== "") {
         warnNumber = parseInt(lastWord, 10);
       }
 
@@ -240,9 +248,17 @@ class ModerationController {
         return;
       }
 
-      if (!await this.usersModel.checkIfColumnExists(`warn_${warnNumber}`) || !await this.usersModel.checkIfWarnTrue(commandDetails.userID, warnNumber)) {
-        await View.incorrectWarnNumber(ctx);
-        return;
+      if (warnNumber === null) warnNumber = user.warns;
+      if (warnNumber !== 0) user.warns -= 1;
+
+      if (warnNumber !== 0) {
+        if (
+          !await this.usersModel.checkIfColumnExists(`warn_${warnNumber}`) ||
+          !await this.usersModel.checkIfWarnTrue(commandDetails.userID, warnNumber)
+        ) {
+          await View.incorrectWarnNumber(ctx);
+          return;
+        }
       }
 
       await this.usersModel.unWarn(commandDetails.userID, warnNumber, user.warns);

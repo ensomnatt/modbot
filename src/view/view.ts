@@ -8,6 +8,7 @@ class View {
 
   static async firstMessage(ctx: Context) {
     await ctx.sendMessage(botMessages.fist);
+    await ctx.sendMessage(botMessages.second);
   }
 
   static async helpMessage(ctx: Context) {
