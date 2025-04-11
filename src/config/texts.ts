@@ -59,8 +59,10 @@ const botMessages = {
   botError: "бот не может взаимодействовать с другим ботом",
   ban: (username: string) => `пользователь ${username} был забанен`,
   kick: (username: string) => `пользователь ${username} был кикнут из группы`,
+  mute: (username: string) => `пользователь ${username} был замучен`,
   warn: (username: string) => `пользователю ${username} был выдан варн`,
   unBan: (username: string) => `пользователь ${username} был разбанен`,
+  unMute: (username: string) => `пользователь ${username} был размучен`,
   unWarn: (username: string) => `с пользователя ${username} был снят варн`,
   update: "бот готов к работе",
 };

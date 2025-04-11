@@ -95,6 +95,9 @@ class ModerationController {
         case "kick":
           await this.kick(ctx, commandDetails);
           break;
+        case "mute":
+          await this.mute(ctx, commandDetails);
+          break;
         case "warn":
           await this.warn(ctx, commandDetails);
           break;
@@ -180,6 +183,34 @@ class ModerationController {
     }
   }
 
+  async mute(ctx: Context, commandDetails: CommandDetails) {
+    try {
+      await ctx.restrictChatMember(commandDetails.userID, {
+        permissions: {
+          can_send_messages: false,
+          can_send_audios: false,
+          can_send_documents: false,
+          can_send_other_messages: false,
+          can_send_photos: false,
+          can_send_video_notes: false,
+          can_send_videos: false,
+          can_send_voice_notes: false,
+          can_send_polls: false,
+        },
+      });
+
+      await this.usersModel.mute(
+        commandDetails.userID,
+        commandDetails.why,
+        commandDetails.end,
+      );
+
+      await View.muteMessage(ctx, commandDetails.username);
+    } catch (error) {
+      console.error(`ошибка при выполнение команды /mute: ${error}`);
+    }
+  }
+
   async warn(ctx: Context, commandDetails: CommandDetails) {
     try {
       const user = await this.usersModel.getUser(commandDetails.userID);
@@ -239,6 +270,43 @@ class ModerationController {
     } catch (error) {
       console.error(`ошибка при вызове команды /unban: ${error}`);
       await View.unBanError(ctx);
+    }
+  }
+
+  async unMute(ctx: Context) {
+    console.log(`пользователь @${ctx.from?.username} вызвал команду /unmute`);
+    if (ctx.from?.is_bot) {
+      await View.botError(ctx);
+      return;
+    }
+
+    try {
+      const commandDetails = await ParseUtils.parseDefaultCommandDetails(
+        ctx,
+        "unmute",
+        this.metricsModel,
+      );
+
+      if (!commandDetails) throw new Error("commandDetails is null");
+
+      await ctx.restrictChatMember(commandDetails.userID, {
+        permissions: {
+          can_send_voice_notes: true,
+          can_send_videos: true,
+          can_send_video_notes: true,
+          can_send_photos: true,
+          can_send_other_messages: true,
+          can_send_documents: true,
+          can_send_audios: true,
+          can_send_messages: true,
+          can_send_polls: true,
+        },
+      });
+
+      await this.usersModel.unMute(commandDetails.userID);
+      await View.unMuteMessage(ctx, commandDetails.username);
+    } catch (error) {
+      console.error(`ошибка при выполнении команды /unmute: ${error}`);
     }
   }
 

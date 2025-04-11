@@ -151,7 +151,7 @@ export class UsersModel {
     }
   }
 
-  async mute(userID: number, why?: string, end?: string) {
+  async mute(userID: number, why?: string, end?: number) {
     try {
       if (why && end) {
         db.prepare(

@@ -68,6 +68,13 @@ composer.hears(/!кик/, chatMW, adminMW, (ctx) =>
   moderationController.punishUser(ctx, "kick"),
 );
 
+composer.command("mute", chatMW, adminMW, (ctx) =>
+  moderationController.punishUser(ctx, "mtue"),
+);
+composer.hears(/!мут/, chatMW, adminMW, (ctx) =>
+  moderationController.punishUser(ctx, "mute"),
+);
+
 composer.command("warn", chatMW, adminMW, (ctx) =>
   moderationController.punishUser(ctx, "warn"),
 );
@@ -80,6 +87,13 @@ composer.command("unban", chatMW, adminMW, (ctx) =>
 );
 composer.hears(/!разбан/, chatMW, adminMW, (ctx) =>
   moderationController.unBan(ctx),
+);
+
+composer.command("unmute", chatMW, adminMW, (ctx) =>
+  moderationController.unMute(ctx),
+);
+composer.hears(/!размут/, chatMW, adminMW, (ctx) =>
+  moderationController.unMute(ctx),
 );
 
 composer.command("unwarn", chatMW, adminMW, (ctx) =>

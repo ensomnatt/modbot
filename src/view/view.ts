@@ -53,12 +53,20 @@ class View {
     await ctx.sendMessage(botMessages.kick(username));
   }
 
+  static async muteMessage(ctx: Context, username: string) {
+    await ctx.sendMessage(botMessages.mute(username));
+  }
+
   static async warnMessage(ctx: Context, username: string) {
     await ctx.sendMessage(botMessages.warn(username));
   }
 
   static async unBanMessage(ctx: Context, username: string) {
     await ctx.sendMessage(botMessages.unBan(username));
+  }
+
+  static async unMuteMessage(ctx: Context, username: string) {
+    await ctx.sendMessage(botMessages.unMute(username));
   }
 
   static async unWarnMessage(ctx: Context, username: string) {
