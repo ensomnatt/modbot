@@ -2,7 +2,7 @@ services:
   bot:
     build: .
     env_file:
-      - .env 
+      - .env
     restart: no
-    volumes: 
-    - /var/lib/modbot/db:/usr/app/src/database
+    volumes:
+      - /var/lib/modbot/db:/usr/app/src/database

@@ -45,7 +45,9 @@ class SettingsController {
 
     await this.chatModel.warnsMax(maxWarns);
     await View.warnsMax(ctx, maxWarns);
-    console.log(`пользователь @${ctx.from?.username} изменил максимальное количество варнов`);
+    console.log(
+      `пользователь @${ctx.from?.username} изменил максимальное количество варнов`,
+    );
   }
 
   async warnsPeriod(ctx: Context) {
@@ -66,10 +68,14 @@ class SettingsController {
       return;
     }
 
-    await this.chatModel.warnsPeriod(await this.dateUtils.getDuration(parsedText));
+    await this.chatModel.warnsPeriod(
+      await this.dateUtils.getDuration(parsedText),
+    );
     await View.warnsPeriod(ctx);
 
-    console.log(`пользователь @${ctx.from?.username} изменил длительность варна`);
+    console.log(
+      `пользователь @${ctx.from?.username} изменил длительность варна`,
+    );
   }
 }
 

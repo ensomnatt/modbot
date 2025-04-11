@@ -15,11 +15,21 @@ class View {
     await ctx.sendMessage(botMessages.help);
   }
 
-  static async settingsMessage(ctx: Context, warnsMax: number, warnsPeriod: string) {
+  static async settingsMessage(
+    ctx: Context,
+    warnsMax: number,
+    warnsPeriod: string,
+  ) {
     await ctx.reply(botMessages.settings(warnsMax, warnsPeriod));
   }
 
-  static async statisticsMessage(ctx: Context, bans: number, kicks: number, mutes: number, warns: number) {
+  static async statisticsMessage(
+    ctx: Context,
+    bans: number,
+    kicks: number,
+    mutes: number,
+    warns: number,
+  ) {
     await ctx.reply(botMessages.statistics(bans, kicks, mutes, warns));
   }
 
@@ -45,12 +55,12 @@ class View {
 
   static async warnMessage(ctx: Context, username: string) {
     await ctx.sendMessage(botMessages.warn(username));
-  } 
+  }
 
   static async unBanMessage(ctx: Context, username: string) {
     await ctx.sendMessage(botMessages.unBan(username));
   }
-  
+
   static async unWarnMessage(ctx: Context, username: string) {
     await ctx.sendMessage(botMessages.unWarn(username));
   }

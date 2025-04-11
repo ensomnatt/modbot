@@ -19,7 +19,9 @@ export class StatisticsModel {
 
   async getStatistics(): Promise<Statistics | null> {
     try {
-      const statistics = await db.prepare("SELECT * FROM statistics").get() as Statistics;
+      const statistics = (await db
+        .prepare("SELECT * FROM statistics")
+        .get()) as Statistics;
       console.log("получена статистика чата");
       return statistics;
     } catch (error) {

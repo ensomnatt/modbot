@@ -15,7 +15,9 @@ export const startMW: MiddlewareFn<Context> = async (ctx, next) => {
     if (!chatID) {
       return next();
     } else {
-      await ctx.sendMessage("привет, я бот для модерации кф, и я уже добавлен в группу");
+      await ctx.sendMessage(
+        "привет, я бот для модерации кф, и я уже добавлен в группу",
+      );
     }
   }
 };
@@ -40,7 +42,7 @@ export const chatMW: MiddlewareFn<Context> = async (ctx, next) => {
 
 export const adminMW: MiddlewareFn<Context> = async (ctx, next) => {
   const admins = await ctx.getChatAdministrators();
-  const isAdmin = admins.some(admin => admin.user.id === ctx.from?.id);
+  const isAdmin = admins.some((admin) => admin.user.id === ctx.from?.id);
 
   if (isAdmin) return next();
 };

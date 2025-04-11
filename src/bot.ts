@@ -6,4 +6,4 @@ const bot = new Telegraf(BOT_TOKEN);
 
 bot.use(composer);
 
-bot.launch()
+bot.launch();

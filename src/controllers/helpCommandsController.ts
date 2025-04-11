@@ -26,10 +26,12 @@ class HelpCommandsController {
   async help(ctx: Context) {
     await View.helpMessage(ctx);
   }
-  
+
   async settings(ctx: Context) {
     try {
-      console.log(`пользователь @${ctx.from?.username} вызвал команду /settings`);
+      console.log(
+        `пользователь @${ctx.from?.username} вызвал команду /settings`,
+      );
       const chat = await this.chatModel.chatInfo();
       if (chat === null) throw new Error("chat is null");
       if (chat.warnsMax === null) throw new Error("warnsMax is null");
@@ -49,11 +51,19 @@ class HelpCommandsController {
 
   async statistics(ctx: Context) {
     try {
-      console.log(`пользователь ${ctx.from?.username} вызвал команду /statistics`);
+      console.log(
+        `пользователь ${ctx.from?.username} вызвал команду /statistics`,
+      );
       const statistics = await this.statisticsModel.getStatistics();
       if (statistics === null) throw new Error("statistics is null");
 
-      await View.statisticsMessage(ctx, statistics.bans, statistics.kicks, statistics.mutes, statistics.warns);
+      await View.statisticsMessage(
+        ctx,
+        statistics.bans,
+        statistics.kicks,
+        statistics.mutes,
+        statistics.warns,
+      );
     } catch (error) {
       console.error(`ошибка при вызове команды /statistics: ${error}`);
     }

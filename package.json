@@ -26,5 +26,8 @@
   "bugs": {
     "url": "https://github.com/ensomnatt/modbot/issues"
   },
-  "homepage": "https://github.com/ensomnatt/modbot#readme"
+  "homepage": "https://github.com/ensomnatt/modbot#readme",
+  "devDependencies": {
+    "prettier": "^3.5.3"
+  }
 }

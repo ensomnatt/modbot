@@ -32,7 +32,8 @@ class MetricsController {
       const chatMember = await ctx.getChatMember(metric.userID);
       const username = chatMember.user.username || "";
 
-      if (username !== metric.username) await this.metricsModel.updateUsername(metric.userID, username);
+      if (username !== metric.username)
+        await this.metricsModel.updateUsername(metric.userID, username);
     }
   }
 
@@ -47,8 +48,8 @@ class MetricsController {
 
       const metric: Metric = {
         userID: userID,
-        username: username
-      }
+        username: username,
+      };
 
       if (!isExists) await this.metricsModel.add(metric);
     } catch (error) {

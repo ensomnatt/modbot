@@ -22,7 +22,9 @@ export class ChatModel {
       db.prepare("UPDATE chat SET warns_max = ?").run(maxWarns);
       console.log(`изменено максимальное количество варнов на ${maxWarns}`);
     } catch (error) {
-      console.error(`ошибка при изменении максимального количества варнов: ${error}`);
+      console.error(
+        `ошибка при изменении максимального количества варнов: ${error}`,
+      );
     }
   }
 
@@ -43,7 +45,7 @@ export class ChatModel {
       console.error(`ошибка при попытке добавить информацию о чате: ${chatID}`);
     }
   }
-  
+
   async timeZone(timeZone: string) {
     try {
       db.prepare("UPDATE chat SET time_zone = ?").run(timeZone);
@@ -64,14 +66,16 @@ export class ChatModel {
 
   async chatInfo(): Promise<Chat | null> {
     try {
-      const chatRaw = await db.prepare("SELECT * FROM chat").get() as ChatData;
+      const chatRaw = (await db
+        .prepare("SELECT * FROM chat")
+        .get()) as ChatData;
       const chat: Chat = {
         chatID: chatRaw.chat_id,
         warnsMax: chatRaw.warns_max,
         warnsPeriod: chatRaw.warns_period,
         timeZone: chatRaw.time_zone,
-        code: chatRaw.code
-      }
+        code: chatRaw.code,
+      };
 
       return chat;
     } catch (error) {

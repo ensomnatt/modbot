@@ -2,15 +2,18 @@ import Database from "better-sqlite3";
 
 const db = new Database("src/database/modBot.db");
 
-db.prepare(`CREATE TABLE IF NOT EXISTS chat (
+db.prepare(
+  `CREATE TABLE IF NOT EXISTS chat (
   chat_id INTEGER,
   warns_max INTEGER,
   warns_period INTEGER,
   time_zone TEXT,
   code TEXT
-)`).run();
+)`,
+).run();
 
-db.prepare(`CREATE TABLE IF NOT EXISTS users (
+db.prepare(
+  `CREATE TABLE IF NOT EXISTS users (
   user_id INTEGER NOT NULL,
   banned INTEGER DEFAULT 0,
   banned_why TEXT DEFAULT NULL,
@@ -19,29 +22,42 @@ db.prepare(`CREATE TABLE IF NOT EXISTS users (
   muted_why TEXT DEFAULT NULL,
   mute_end INTEGER DEFAULT NULL,
   warns INTEGER DEFAULT 0
-)`).run();
+)`,
+).run();
 
-db.prepare(`CREATE TABLE IF NOT EXISTS statistics (
+db.prepare(
+  `CREATE TABLE IF NOT EXISTS statistics (
   bans INTEGER,
   kicks INTEGER,
   mutes INTEGER,
   warns INTEGER
-)`).run();
+)`,
+).run();
 
-db.prepare(`CREATE TABLE IF NOT EXISTS metrics (
+db.prepare(
+  `CREATE TABLE IF NOT EXISTS metrics (
   user_id INTEGER NOT NULL,
   username TEXT NOT NULL
-)`).run();
+)`,
+).run();
 
-let result
-result = db.prepare("SELECT COUNT(*) AS count FROM chat").get() as { count: number };
+let result;
+result = db.prepare("SELECT COUNT(*) AS count FROM chat").get() as {
+  count: number;
+};
 if (!result.count) {
-  db.prepare("INSERT INTO chat (chat_id, warns_max, warns_period, time_zone, code) VALUES (NULL, 3, 0, 'Europe/Moscow', NULL)").run();
+  db.prepare(
+    "INSERT INTO chat (chat_id, warns_max, warns_period, time_zone, code) VALUES (NULL, 3, 0, 'Europe/Moscow', NULL)",
+  ).run();
 }
 
-result = db.prepare("SELECT COUNT(*) AS count FROM statistics").get() as { count: number };
+result = db.prepare("SELECT COUNT(*) AS count FROM statistics").get() as {
+  count: number;
+};
 if (!result.count) {
-  db.prepare("INSERT INTO statistics (bans, kicks, mutes, warns) VALUES (0, 0, 0, 0)").run();
+  db.prepare(
+    "INSERT INTO statistics (bans, kicks, mutes, warns) VALUES (0, 0, 0, 0)",
+  ).run();
 }
 
 console.log("инициализирована база данных");
