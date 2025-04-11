@@ -75,7 +75,7 @@ class HelpCommandsController {
       if (!users) throw new Error("users is null");
       let message: string = "";
 
-      for (let user of users) {
+      for (const user of users) {
         if (!user.banned) {
           continue;
         }

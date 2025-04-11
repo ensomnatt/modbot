@@ -79,7 +79,7 @@ class DateUtils {
   }
 
   async getDuration(elements: string[]): Promise<number> {
-    let duration = { years: 0, months: 0, days: 0, hours: 0, minutes: 0 };
+    const duration = { years: 0, months: 0, days: 0, hours: 0, minutes: 0 };
 
     for (let i = 0; i < elements.length; i += 2) {
       const number = parseInt(elements[i], 10);

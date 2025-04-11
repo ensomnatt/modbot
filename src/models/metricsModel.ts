@@ -42,7 +42,7 @@ export class MetricsModel {
       const metricsRaw = db
         .prepare("SELECT * FROM metrics")
         .all() as MetricData[];
-      let metrics: Metric[] = [];
+      const metrics: Metric[] = [];
 
       for (const metricRaw of metricsRaw) {
         const metric: Metric = {

@@ -39,7 +39,7 @@ export class UsersModel {
         .get(userID)) as UserData;
       if (!userRaw.user_id) throw new Error("userID is null");
 
-      let user: User = {
+      const user: User = {
         userID: userRaw.user_id,
         banned: false,
         bannedWhy: userRaw.banned_why,
@@ -60,11 +60,11 @@ export class UsersModel {
   async getUsers(): Promise<User[] | null> {
     try {
       const usersRaw = db.prepare("SELECT * FROM users").all() as UserData[];
-      let users: User[] = [];
+      const users: User[] = [];
       for (const userRaw of usersRaw) {
         if (!userRaw.user_id) throw new Error("userID is null");
 
-        let user: User = {
+        const user: User = {
           userID: userRaw.user_id,
           banned: false,
           bannedWhy: userRaw.banned_why,
