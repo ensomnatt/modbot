@@ -113,7 +113,6 @@ export class ParseUtils {
         userID = await metricsModel.getUserID(username.slice(1));
       }
 
-      if (!username.startsWith("@")) throw new Error("incorrect username");
       if (userID === null || userID === undefined)
         throw new Error("userID is undefined or null");
 
