@@ -50,6 +50,9 @@ composer.hears(/!статистика/, chatMW, (ctx) =>
 composer.command("bans", chatMW, (ctx) => helpCommandsController.bans(ctx));
 composer.hears(/!баны/, chatMW, (ctx) => helpCommandsController.bans(ctx));
 
+composer.command("mutes", chatMW, (ctx) => helpCommandsController.mutes(ctx));
+composer.hears(/!муты/, chatMW, (ctx) => helpCommandsController.mutes(ctx));
+
 composer.command("ban", chatMW, adminMW, (ctx) =>
   moderationController.punishUser(ctx, "ban"),
 );

@@ -15,6 +15,10 @@ class View {
     await ctx.sendMessage(botMessages.help);
   }
 
+  static async sendMessage(ctx: Context, message: string) {
+    await ctx.sendMessage(message);
+  }
+
   static async settingsMessage(
     ctx: Context,
     warnsMax: number,
@@ -31,10 +35,6 @@ class View {
     warns: number,
   ) {
     await ctx.reply(botMessages.statistics(bans, kicks, mutes, warns));
-  }
-
-  static async bans(ctx: Context, message: string) {
-    await ctx.sendMessage(message);
   }
 
   static async warnsMax(ctx: Context, warnsMax: number) {

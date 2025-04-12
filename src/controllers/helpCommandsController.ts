@@ -98,11 +98,45 @@ class HelpCommandsController {
         message += `${username} | ${bannedWhy} | ${banEnd}\n`;
       }
 
-      if (!message) message = "не найдено незабаненных пользователей";
+      if (!message) message = "не найдено забаненных пользователей";
 
-      await View.bans(ctx, message);
+      await View.sendMessage(ctx, message);
     } catch (error) {
       console.error(`ошибка при вызове команды /bans: ${error}`);
+    }
+  }
+
+  async mutes(ctx: Context) {
+    try {
+      console.log(`пользователь ${ctx.from?.username} ввел команду /mutes`);
+      const users = await this.usersModel.getUsers();
+      if (!users) throw new Error("users is null");
+
+      let message = "";
+      for (const user of users) {
+        if (!user.muted) continue;
+        if (user.muteEnd === null) throw new Error("user's muteEnd is null"); 
+        
+        let mutedWhy: string | null = user.mutedWhy;
+        let muteEnd: string | number = user.muteEnd;
+        if (user.muteEnd === 0) {
+          muteEnd = "навсегда";
+        } else {
+          muteEnd = await this.dateUtils.UNIXToDate(muteEnd);
+        }
+        if (user.mutedWhy === null) mutedWhy = "без причины";
+
+        let username: string | null = "@" + await this.metricsModel.getUsername(user.userID);
+        if (!username || username === "@") username = user.userID.toString();
+
+        message += `${username} | ${mutedWhy} | ${muteEnd}\n`;
+      }
+
+      if (!message) message = "не найдено замученных пользователей";
+
+      await View.sendMessage(ctx, message);
+    } catch (error) {
+      console.error(`ошибка при вызове команды /mutes: ${error}`);
     }
   }
 }
