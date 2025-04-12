@@ -5,6 +5,7 @@ import { StatisticsModel } from "../models/statisticsModel";
 import DateUtils from "../utils/dateUtils";
 import { UsersModel } from "../models/usersModel";
 import { MetricsModel } from "../models/metricsModel";
+import { ParseUtils } from "../utils/parseUtils";
 
 class HelpCommandsController {
   private chatModel: ChatModel;
@@ -81,8 +82,8 @@ class HelpCommandsController {
       let message = "";
       for (const user of users) {
         if (!user.banned) continue;
-        if (user.banEnd === null) throw new Error("user's banEnd is null"); 
-        
+        if (user.banEnd === null) throw new Error("user's banEnd is null");
+
         let bannedWhy: string | null = user.bannedWhy;
         let banEnd: string | number = user.banEnd;
         if (user.banEnd === 0) {
@@ -92,7 +93,8 @@ class HelpCommandsController {
         }
         if (user.bannedWhy === null) bannedWhy = "без причины";
 
-        let username: string | null = "@" + await this.metricsModel.getUsername(user.userID);
+        let username: string | null =
+          "@" + (await this.metricsModel.getUsername(user.userID));
         if (!username || username === "@") username = user.userID.toString();
 
         message += `${username} | ${bannedWhy} | ${banEnd}\n`;
@@ -115,8 +117,8 @@ class HelpCommandsController {
       let message = "";
       for (const user of users) {
         if (!user.muted) continue;
-        if (user.muteEnd === null) throw new Error("user's muteEnd is null"); 
-        
+        if (user.muteEnd === null) throw new Error("user's muteEnd is null");
+
         let mutedWhy: string | null = user.mutedWhy;
         let muteEnd: string | number = user.muteEnd;
         if (user.muteEnd === 0) {
@@ -126,7 +128,8 @@ class HelpCommandsController {
         }
         if (user.mutedWhy === null) mutedWhy = "без причины";
 
-        let username: string | null = "@" + await this.metricsModel.getUsername(user.userID);
+        let username: string | null =
+          "@" + (await this.metricsModel.getUsername(user.userID));
         if (!username || username === "@") username = user.userID.toString();
 
         message += `${username} | ${mutedWhy} | ${muteEnd}\n`;
@@ -137,6 +140,63 @@ class HelpCommandsController {
       await View.sendMessage(ctx, message);
     } catch (error) {
       console.error(`ошибка при вызове команды /mutes: ${error}`);
+    }
+  }
+
+  async info(ctx: Context) {
+    try {
+      const commandDetails = await ParseUtils.parseDefaultCommandDetails(
+        ctx,
+        "info",
+        this.metricsModel,
+      );
+      if (!commandDetails) throw new Error("commandDetails is null");
+      console.log(commandDetails);
+
+      if (!(await this.usersModel.checkIfUserExists(commandDetails.userID))) {
+        await this.usersModel.add(commandDetails.userID);
+      }
+
+      const user = await this.usersModel.getUser(commandDetails.userID);
+      if (!user) throw new Error("user is null");
+
+      console.log(user);
+
+      let banEnd: string | null = null;
+      let muteEnd: string | null = null;
+      if (user.banEnd) banEnd = await this.dateUtils.UNIXToDate(user.banEnd);
+      if (user.muteEnd) muteEnd = await this.dateUtils.UNIXToDate(user.muteEnd);
+      console.log(banEnd, muteEnd);
+
+      const warns = await this.usersModel.getWarns(user.userID, user.warns);
+      if (!warns) throw new Error("warns is null");
+      console.log(warns);
+
+      const formattedWarns = new Map<string, string>();
+      for (const [why, end] of warns) {
+        if (!end) {
+          formattedWarns.set(why, "навсегда");
+        } else {
+          formattedWarns.set(why, await this.dateUtils.UNIXToDate(end));
+        }
+      }
+
+      console.log(formattedWarns);
+
+      await View.info(
+        ctx,
+        commandDetails.username,
+        commandDetails.userID,
+        user.banned,
+        user.bannedWhy,
+        banEnd,
+        user.muted,
+        user.mutedWhy,
+        muteEnd,
+        formattedWarns,
+      );
+    } catch (error) {
+      console.error(`ошибка при выполнении команды /info: ${error}`);
     }
   }
 }

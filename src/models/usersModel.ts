@@ -88,6 +88,34 @@ export class UsersModel {
     }
   }
 
+  async getWarns(
+    userID: number,
+    warnsCount: number,
+  ): Promise<Map<string, number> | null> {
+    try {
+      const warns = new Map<string, number>();
+      console.log(warnsCount);
+      for (let i = 1; i <= warnsCount; i++) {
+        const warn = (await db
+          .prepare(
+            `SELECT warn_${i}, warn_${i}_why, warn_${i}_end FROM users WHERE user_id = ?`,
+          )
+          .get(userID)) as { status: number; why: string | null; end: number };
+        console.log(warn);
+
+        if (!warn.status) continue;
+        warns.set(warn.why || "", warn.end);
+
+        console.log(warns);
+      }
+
+      return warns;
+    } catch (error) {
+      console.error(`ошибка при взятии варнов пользователя: ${error}`);
+      return null;
+    }
+  }
+
   async checkIfUserExists(userID: number): Promise<boolean | null> {
     try {
       const result = db

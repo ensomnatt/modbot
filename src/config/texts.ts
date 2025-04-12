@@ -16,13 +16,45 @@ const botMessages = {
   /warn [юзернейм, время, причина] / !варн [юзернейм, время, причина] - выдать варн\n 
   /unban [юзернейм] / !разбан [юзернейм] - разбан пользователя\n 
   /unmute [юзернейм] / !размут [юзернейм] - размут пользователя\n 
-  /unwarn [юзернейм, номер варна] / !снять варн [юзернейм, номер варна] - снять варн\n`,
+  /unwarn [юзернейм, номер варна] / !снять варн [юзернейм, номер варна] - снять варн\n
+  /info [юзернейм] / !инфо [юзернейм] - получить информацию о пользователе`,
   settings: (warnsMax: number, warnsPeriod: string) =>
     `максимальное количество варнов для бана: ${warnsMax}\nдлительность варнов по дефолту: ${warnsPeriod}`,
   statistics: (bans: number, kicks: number, mutes: number, warns: number) =>
     `забанено: ${bans}\nкикнуто: ${kicks}\nзамучено: ${mutes}\nвыдано варнов: ${warns}`,
   warnsMax: (warnsMax: number) => `количество варнов изменено на ${warnsMax}`,
   warnsPeriod: "длительность варнов изменена",
+  ban: (username: string) => `пользователь ${username} был забанен`,
+  kick: (username: string) => `пользователь ${username} был кикнут из группы`,
+  mute: (username: string) => `пользователь ${username} был замучен`,
+  warn: (username: string) => `пользователю ${username} был выдан варн`,
+  unBan: (username: string) => `пользователь ${username} был разбанен`,
+  unMute: (username: string) => `пользователь ${username} был размучен`,
+  unWarn: (username: string) => `с пользователя ${username} был снят варн`,
+  infoFirst: (username: string, userID: number) =>
+    `информация о пользователе ${username} (${userID}):\n\n`,
+  infoBanForeverWithoutReason: `забанен навсегда без причины\n`,
+  infoBanWithoutReason: (date: string) => `забанен до ${date} без причины\n`,
+  infoBanForever: (reason: string) =>
+    `забанен навсегда по причине "${reason}"\n`,
+  infoBan: (date: string, reason: string) =>
+    `забанен до ${date} по причине "${reason}"\n`,
+  infoMuteForeverWithoutReason: `замучен навсегда без причины\n`,
+  infoMuteWithoutReason: (date: string) => `замучен до ${date} без причины\n`,
+  infoMuteForever: (reason: string) =>
+    `замучен навсегда по причине "${reason}"\n`,
+  infoMute: (date: string, reason: string) =>
+    `замучен до ${date} по причине "${reason}"\n`,
+  infoWarns: `варны:\n`,
+  infoWarnForeverWithoutReason: `выдан варн навсегда без причины\n`,
+  infoWarnForever: (reason: string) =>
+    `выдан варн навсегда по причине "${reason}"\n`,
+  infoWarnWithoutReason: (date: string) =>
+    `выдан варн до ${date} без причины\n`,
+  infoWarn: (date: string, reason: string) =>
+    `выдан варн до ${date} по причине "${reason}"`,
+  infoDidntFound: `не забанен, не замучен, нет варнов`,
+  update: "бот готов к работе",
   warnsPeriodError:
     "использование: /warnsperiod 5 лет 5 месяцев 5 дней / длительность варнов 5 лет 5 месяцев 5 дней",
   warnsMaxError: "использование: /maxwarns 5 / максимум варнов 5",
@@ -57,14 +89,6 @@ const botMessages = {
   userHasNoWarns: "у пользователя нет варнов",
   incorrectWarnNumber: "некорректный номер варна",
   botError: "бот не может взаимодействовать с другим ботом",
-  ban: (username: string) => `пользователь ${username} был забанен`,
-  kick: (username: string) => `пользователь ${username} был кикнут из группы`,
-  mute: (username: string) => `пользователь ${username} был замучен`,
-  warn: (username: string) => `пользователю ${username} был выдан варн`,
-  unBan: (username: string) => `пользователь ${username} был разбанен`,
-  unMute: (username: string) => `пользователь ${username} был размучен`,
-  unWarn: (username: string) => `с пользователя ${username} был снят варн`,
-  update: "бот готов к работе",
 };
 
 export default botMessages;

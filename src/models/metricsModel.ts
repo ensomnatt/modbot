@@ -88,9 +88,7 @@ export class MetricsModel {
         .get(userID)) as { username: string };
 
       if (result) {
-        console.log(
-          `получен юзернейм по айди: ${result.username}, ${userID}`,
-        );
+        console.log(`получен юзернейм по айди: ${result.username}, ${userID}`);
         return result.username;
       } else {
         console.log(`не найдено айди по юзернейму ${userID}`);

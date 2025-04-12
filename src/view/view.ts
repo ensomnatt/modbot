@@ -19,6 +19,65 @@ class View {
     await ctx.sendMessage(message);
   }
 
+  static async info(
+    ctx: Context,
+    username: string,
+    userID: number,
+    banned: boolean,
+    bannedWhy: string | null,
+    banEnd: string | null,
+    muted: boolean,
+    mutedWhy: string | null,
+    muteEnd: string | null,
+    warns: Map<string, string>,
+  ) {
+    let message = botMessages.infoFirst(username, userID);
+
+    if (banned) {
+      if (bannedWhy && banEnd) {
+        message += botMessages.infoBan(banEnd, bannedWhy);
+      } else if (bannedWhy) {
+        message += botMessages.infoBanForever(bannedWhy);
+      } else if (banEnd) {
+        message += botMessages.infoBanWithoutReason(banEnd);
+      } else {
+        message += botMessages.infoBanForeverWithoutReason;
+      }
+    }
+
+    if (muted) {
+      if (mutedWhy && muteEnd) {
+        message += botMessages.infoMute(muteEnd, mutedWhy);
+      } else if (mutedWhy) {
+        message += botMessages.infoMuteForever(mutedWhy);
+      } else if (muteEnd) {
+        message += botMessages.infoMuteWithoutReason(muteEnd);
+      } else {
+        message += botMessages.infoMuteForeverWithoutReason;
+      }
+    }
+
+    if (warns.size > 0) {
+      for (const [reason, end] of warns) {
+        if (reason && end !== "навсегда") {
+          message += botMessages.infoWarn(end, reason);
+        } else if (reason && end === "навсегда") {
+          message += botMessages.infoWarnForever(reason);
+        } else if (!reason && end !== "навсегда") {
+          message += botMessages.infoWarnWithoutReason(end);
+        } else {
+          message += botMessages.infoWarnForeverWithoutReason;
+        }
+      }
+    }
+
+    if (!banned && !muted && !(warns.size > 0)) {
+      message += botMessages.infoDidntFound;
+    }
+
+    await ctx.sendMessage(message);
+  }
+
   static async settingsMessage(
     ctx: Context,
     warnsMax: number,
