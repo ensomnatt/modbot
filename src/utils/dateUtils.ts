@@ -2,6 +2,7 @@ import { DateTime, Duration } from "luxon";
 
 class DateUtils {
   private TIME_ZONE: string;
+  private FORMAT: string = "yyyy-MM-dd HH:mm";
 
   constructor(timeZone: string) {
     this.TIME_ZONE = timeZone;
@@ -46,6 +47,10 @@ class DateUtils {
     if (result === "") result = "меньше минуты";
 
     return result;
+  }
+
+  async UNIXToDate(unix: number): Promise<string> {
+    return DateTime.fromSeconds(unix).toFormat(this.FORMAT);
   }
 
   async getYearString(years: number): Promise<string> {

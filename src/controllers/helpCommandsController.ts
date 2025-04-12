@@ -4,17 +4,20 @@ import { ChatModel } from "../models/chatModel";
 import { StatisticsModel } from "../models/statisticsModel";
 import DateUtils from "../utils/dateUtils";
 import { UsersModel } from "../models/usersModel";
+import { MetricsModel } from "../models/metricsModel";
 
 class HelpCommandsController {
   private chatModel: ChatModel;
   private statisticsModel: StatisticsModel;
   private usersModel: UsersModel;
+  private metricsModel: MetricsModel;
   private dateUtils: DateUtils;
 
   constructor() {
     this.chatModel = new ChatModel();
     this.statisticsModel = new StatisticsModel();
     this.usersModel = new UsersModel();
+    this.metricsModel = new MetricsModel();
     this.dateUtils = new DateUtils("");
   }
 
@@ -71,22 +74,33 @@ class HelpCommandsController {
 
   async bans(ctx: Context) {
     try {
+      console.log(`пользователь ${ctx.from?.username} ввел команду /bans`);
       const users = await this.usersModel.getUsers();
       if (!users) throw new Error("users is null");
-      let message: string = "";
 
+      let message = "";
       for (const user of users) {
-        if (!user.banned) {
-          continue;
+        if (!user.banned) continue;
+        if (user.banEnd === null) throw new Error("user's banEnd is null"); 
+        
+        let bannedWhy: string | null = user.bannedWhy;
+        let banEnd: string | number = user.banEnd;
+        if (user.banEnd === 0) {
+          banEnd = "навсегда";
+        } else {
+          banEnd = await this.dateUtils.UNIXToDate(banEnd);
         }
+        if (user.bannedWhy === null) bannedWhy = "без причины";
 
-        let banEnd: string | number = user.banEnd || "";
-        if (!user.bannedWhy) user.bannedWhy = "без причины";
-        if (!user.banEnd) banEnd = "навсегда";
+        let username: string | null = "@" + await this.metricsModel.getUsername(user.userID);
+        if (!username || username === "@") username = user.userID.toString();
 
-        message += `${user.userID} | ${user.bannedWhy} | ${banEnd}\n`;
-        await View.bans(ctx, message);
+        message += `${username} | ${bannedWhy} | ${banEnd}\n`;
       }
+
+      if (!message) message = "не найдено незабаненных пользователей";
+
+      await View.bans(ctx, message);
     } catch (error) {
       console.error(`ошибка при вызове команды /bans: ${error}`);
     }
