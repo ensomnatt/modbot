@@ -41,10 +41,10 @@ export class UsersModel {
 
       const user: User = {
         userID: userRaw.user_id,
-        banned: false,
+        banned: !!userRaw.banned,
         bannedWhy: userRaw.banned_why,
         banEnd: userRaw.ban_end,
-        muted: false,
+        muted: !!userRaw.muted,
         mutedWhy: userRaw.muted_why,
         muteEnd: userRaw.mute_end,
         warns: userRaw.warns,
@@ -66,17 +66,14 @@ export class UsersModel {
 
         const user: User = {
           userID: userRaw.user_id,
-          banned: false,
+          banned: !!userRaw.banned,
           bannedWhy: userRaw.banned_why,
           banEnd: userRaw.ban_end,
-          muted: false,
+          muted: !!userRaw.muted,
           mutedWhy: userRaw.muted_why,
           muteEnd: userRaw.mute_end,
           warns: userRaw.warns,
         };
-
-        if (userRaw.banned) user.banned = true;
-        if (userRaw.muted) user.muted = true;
 
         users.push(user);
       }
@@ -98,7 +95,7 @@ export class UsersModel {
       for (let i = 1; i <= warnsCount; i++) {
         const warn = (await db
           .prepare(
-            `SELECT warn_${i}, warn_${i}_why, warn_${i}_end FROM users WHERE user_id = ?`,
+            `SELECT warn_${i} AS status, warn_${i}_why AS why, warn_${i}_end AS end FROM users WHERE user_id = ?`,
           )
           .get(userID)) as { status: number; why: string | null; end: number };
         console.log(warn);
