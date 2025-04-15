@@ -151,7 +151,6 @@ class HelpCommandsController {
         this.metricsModel,
       );
       if (!commandDetails) throw new Error("commandDetails is null");
-      console.log(commandDetails);
 
       if (!(await this.usersModel.checkIfUserExists(commandDetails.userID))) {
         await this.usersModel.add(commandDetails.userID);
@@ -160,28 +159,26 @@ class HelpCommandsController {
       const user = await this.usersModel.getUser(commandDetails.userID);
       if (!user) throw new Error("user is null");
 
-      console.log(user);
-
       let banEnd: string | null = null;
       let muteEnd: string | null = null;
       if (user.banEnd) banEnd = await this.dateUtils.UNIXToDate(user.banEnd);
       if (user.muteEnd) muteEnd = await this.dateUtils.UNIXToDate(user.muteEnd);
-      console.log(banEnd, muteEnd);
 
       const warns = await this.usersModel.getWarns(user.userID, user.warns);
       if (!warns) throw new Error("warns is null");
-      console.log(warns);
 
-      const formattedWarns = new Map<string, string>();
-      for (const [why, end] of warns) {
-        if (!end) {
-          formattedWarns.set(why, "навсегда");
-        } else {
-          formattedWarns.set(why, await this.dateUtils.UNIXToDate(end));
-        }
+      const formattedWarns: { reason: string; end: string }[] = [];
+
+      for (const warn of warns) {
+        const endFormatted = warn.end
+          ? await this.dateUtils.UNIXToDate(warn.end)
+          : "навсегда";
+
+        formattedWarns.push({
+          reason: warn.reason,
+          end: endFormatted,
+        });
       }
-
-      console.log(formattedWarns);
 
       await View.info(
         ctx,

@@ -22,6 +22,11 @@ interface UserData {
   warns: number;
 }
 
+export interface Warn {
+  reason: string;
+  end: number;
+}
+
 export class UsersModel {
   async add(userID: number) {
     try {
@@ -88,9 +93,9 @@ export class UsersModel {
   async getWarns(
     userID: number,
     warnsCount: number,
-  ): Promise<Map<string, number> | null> {
+  ): Promise<Warn[] | null> {
     try {
-      const warns = new Map<string, number>();
+      const warns: Warn[] = [];
       console.log(warnsCount);
       for (let i = 1; i <= warnsCount; i++) {
         const warn = (await db
@@ -101,11 +106,13 @@ export class UsersModel {
         console.log(warn);
 
         if (!warn.status) continue;
-        warns.set(warn.why || "", warn.end);
-
-        console.log(warns);
+        warns.push({
+          reason: warn.why || "",
+          end: warn.end
+        })
       }
 
+      console.log("получены варны пользователя")
       return warns;
     } catch (error) {
       console.error(`ошибка при взятии варнов пользователя: ${error}`);

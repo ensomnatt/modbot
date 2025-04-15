@@ -29,7 +29,7 @@ class View {
     muted: boolean,
     mutedWhy: string | null,
     muteEnd: string | null,
-    warns: Map<string, string>,
+    warns: {reason: string, end: string}[],
   ) {
     let message = botMessages.infoFirst(username, userID);
 
@@ -57,21 +57,21 @@ class View {
       }
     }
 
-    if (warns.size > 0) {
-      for (const [reason, end] of warns) {
-        if (reason && end !== "навсегда") {
-          message += botMessages.infoWarn(end, reason);
-        } else if (reason && end === "навсегда") {
-          message += botMessages.infoWarnForever(reason);
-        } else if (!reason && end !== "навсегда") {
-          message += botMessages.infoWarnWithoutReason(end);
+    if (warns.length > 0) {
+      for (const warn of warns) {
+        if (warn.reason && warn.end !== "навсегда") {
+          message += botMessages.infoWarn(warn.end, warn.reason);
+        } else if (warn.reason && warn.end === "навсегда") {
+          message += botMessages.infoWarnForever(warn.reason);
+        } else if (!warn.reason && warn.end !== "навсегда") {
+          message += botMessages.infoWarnWithoutReason(warn.end);
         } else {
           message += botMessages.infoWarnForeverWithoutReason;
         }
       }
     }
 
-    if (!banned && !muted && !(warns.size > 0)) {
+    if (!banned && !muted && !(warns.length > 0)) {
       message += botMessages.infoDidntFound;
     }
 
