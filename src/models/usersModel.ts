@@ -90,29 +90,38 @@ export class UsersModel {
     }
   }
 
-  async getWarns(
-    userID: number,
-    warnsCount: number,
-  ): Promise<Warn[] | null> {
+  async getMaxWarn(): Promise<number> {
+    const stmt = db.prepare(`PRAGMA table_info(users)`);
+    const columns = stmt.all() as { name: string }[];
+
+    const warnNumbers = columns
+      .map((col) => col.name)
+      .filter((name) => /^warn_\d+$/.test(name))
+      .map((name) => parseInt(name.split("_")[1], 10));
+
+    return warnNumbers.length > 0 ? Math.max(...warnNumbers) : 0;
+  }
+
+  async getWarns(userID: number): Promise<Warn[] | null> {
     try {
-      const warns: Warn[] = [];
+      const warnsCount = await this.getMaxWarn();
       console.log(warnsCount);
+      const warns: Warn[] = [];
       for (let i = 1; i <= warnsCount; i++) {
         const warn = (await db
           .prepare(
             `SELECT warn_${i} AS status, warn_${i}_why AS why, warn_${i}_end AS end FROM users WHERE user_id = ?`,
           )
           .get(userID)) as { status: number; why: string | null; end: number };
-        console.log(warn);
 
         if (!warn.status) continue;
         warns.push({
           reason: warn.why || "",
-          end: warn.end
-        })
+          end: warn.end,
+        });
       }
 
-      console.log("получены варны пользователя")
+      console.log("получены варны пользователя");
       return warns;
     } catch (error) {
       console.error(`ошибка при взятии варнов пользователя: ${error}`);
@@ -317,7 +326,8 @@ export class UsersModel {
   async unWarn(userID: number, warnNumber: number, warns: number) {
     try {
       if (!warnNumber) {
-        for (let i = 1; i <= warns; i++) {
+        const warnsCount = await this.getMaxWarn();
+        for (let i = 1; i <= warnsCount; i++) {
           db.prepare(
             `UPDATE users SET warn_${i} = 0, warn_${i}_why = NULL, warn_${i}_end = NULL WHERE user_id = ?`,
           ).run(userID);

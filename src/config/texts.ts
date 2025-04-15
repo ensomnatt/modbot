@@ -52,7 +52,7 @@ const botMessages = {
   infoWarnWithoutReason: (date: string) =>
     `выдан варн до ${date} без причины\n`,
   infoWarn: (date: string, reason: string) =>
-    `выдан варн до ${date} по причине "${reason}"`,
+    `выдан варн до ${date} по причине "${reason}"\n`,
   infoDidntFound: `не забанен, не замучен, нет варнов`,
   update: "бот готов к работе",
   warnsPeriodError:
@@ -89,6 +89,7 @@ const botMessages = {
   userHasNoWarns: "у пользователя нет варнов",
   incorrectWarnNumber: "некорректный номер варна",
   botError: "бот не может взаимодействовать с другим ботом",
+  infoError: "использование: /info @shushmyr / !инфо @shushmyr",
 };
 
 export default botMessages;

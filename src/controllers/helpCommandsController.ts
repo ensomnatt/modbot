@@ -164,7 +164,7 @@ class HelpCommandsController {
       if (user.banEnd) banEnd = await this.dateUtils.UNIXToDate(user.banEnd);
       if (user.muteEnd) muteEnd = await this.dateUtils.UNIXToDate(user.muteEnd);
 
-      const warns = await this.usersModel.getWarns(user.userID, user.warns);
+      const warns = await this.usersModel.getWarns(user.userID);
       if (!warns) throw new Error("warns is null");
 
       const formattedWarns: { reason: string; end: string }[] = [];
@@ -194,6 +194,7 @@ class HelpCommandsController {
       );
     } catch (error) {
       console.error(`ошибка при выполнении команды /info: ${error}`);
+      await View.infoError(ctx);
     }
   }
 }

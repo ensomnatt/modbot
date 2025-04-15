@@ -219,10 +219,8 @@ class ModerationController {
       if (!chat) throw new Error("chat is undefined");
 
       if (commandDetails.end !== undefined && commandDetails.end === 0)
-        commandDetails.end = chat?.warnsPeriod;
-
-      if (commandDetails.end !== 0)
-        commandDetails.end += await this.dateUtils.getCurrentTime();
+        commandDetails.end =
+          (await this.dateUtils.getCurrentTime()) + chat?.warnsPeriod;
 
       if (!user) throw new Error("user is null");
       user.warns += 1;
@@ -231,6 +229,10 @@ class ModerationController {
         await this.ban(ctx, commandDetails);
         await this.usersModel.unWarn(commandDetails.userID, 0, user.warns);
         return;
+      }
+
+      if (commandDetails.text.includes("навсегда")) {
+        commandDetails.end = 0;
       }
 
       await this.usersModel.warn(

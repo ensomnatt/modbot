@@ -29,7 +29,7 @@ class View {
     muted: boolean,
     mutedWhy: string | null,
     muteEnd: string | null,
-    warns: {reason: string, end: string}[],
+    warns: { reason: string; end: string }[],
   ) {
     let message = botMessages.infoFirst(username, userID);
 
@@ -218,6 +218,10 @@ class View {
 
   static async botError(ctx: Context) {
     await ctx.reply(botMessages.botError);
+  }
+
+  static async infoError(ctx: Context) {
+    await ctx.reply(botMessages.infoError);
   }
 }
 

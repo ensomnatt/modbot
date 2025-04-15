@@ -42,7 +42,7 @@ export class ChatModel {
       db.prepare("UPDATE chat SET chat_id = ?").run(chatID);
       console.log(`добавлена информация о чате: ${chatID}`);
     } catch (error) {
-      console.error(`ошибка при попытке добавить информацию о чате: ${chatID}`);
+      console.error(`ошибка при попытке добавить информацию о чате: ${error}`);
     }
   }
 

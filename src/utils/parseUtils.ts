@@ -35,6 +35,7 @@ export class ParseUtils {
       "минуты",
       "минут",
       "бесконечно",
+      "навсегда",
     ]);
 
     return splittedText
@@ -59,8 +60,7 @@ export class ParseUtils {
     dateUtils: DateUtils,
   ): Promise<PunishCommandDetails> {
     const periodStr = await this.parseDuration(defaultCommandDetails.text);
-    let why;
-    why = defaultCommandDetails.text
+    const why = defaultCommandDetails.text
       .split(" ")
       .slice(1)
       .join(" ")
