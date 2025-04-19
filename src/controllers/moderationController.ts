@@ -54,7 +54,7 @@ class ModerationController {
       );
 
       if (defaultCommandDetails?.userID === 0) {
-        await View.userNotFound(ctx);
+        await View.userNotFound(ctx)
         return;
       }
       if (!defaultCommandDetails)
