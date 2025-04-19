@@ -11,7 +11,7 @@ import DateUtils from "../utils/dateUtils";
 import View from "../view/view";
 import { MetricsModel } from "../models/metricsModel";
 
-interface CommandDetails extends PunishCommandDetails, DefaultCommandDetails {}
+interface CommandDetails extends PunishCommandDetails, DefaultCommandDetails { }
 
 class ModerationController {
   private chatModel: ChatModel;
@@ -58,7 +58,7 @@ class ModerationController {
         return;
       }
       if (!defaultCommandDetails)
-        throw new Error("defaulCommandDetails is null");
+        throw new Error("defaultCommandDetails is null");
 
       punishCommandDetails = await ParseUtils.parsePunishCommandDetails(
         defaultCommandDetails,
