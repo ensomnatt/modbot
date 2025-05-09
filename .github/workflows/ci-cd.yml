@@ -1,7 +1,7 @@
 name: CD pipeline for moderation bot
 
 env:
-  APP_NAME: "smoker-vlapusik-bot"
+  APP_NAME: "modbot"
 
 on:
   push:
