@@ -10,6 +10,7 @@ import {
 import DateUtils from "../utils/dateUtils";
 import View from "../view/view";
 import { MetricsModel } from "../models/metricsModel";
+import { requestCounter, responseCounter, responseHistogram } from "../metrics/metrics";
 
 interface CommandDetails extends PunishCommandDetails, DefaultCommandDetails { }
 
@@ -153,6 +154,8 @@ class ModerationController {
   }
 
   async ban(ctx: Context, commandDetails: CommandDetails) {
+    const end = responseHistogram.startTimer();
+    requestCounter.inc({ command: "ban" });
     try {
       const user = await this.usersModel.getUser(commandDetails.userID);
       if (user?.banned) {
@@ -166,24 +169,34 @@ class ModerationController {
       );
       await ctx.banChatMember(commandDetails.userID);
       await View.banMessage(ctx, commandDetails.username);
+
+      responseCounter.inc({ command: "ban" });
+      end({ command: "ban" });
     } catch (error) {
       console.error(`ошибка при вызове команды /ban: ${error}`);
     }
   }
 
   async kick(ctx: Context, commandDetails: CommandDetails) {
+    const end = responseHistogram.startTimer();
+    requestCounter.inc({ command: "kick" });
     try {
       await ctx.banChatMember(commandDetails.userID);
       if (ctx.chat?.type !== "group") {
         ctx.unbanChatMember(commandDetails.userID);
       }
       await View.kickMessage(ctx, commandDetails.username);
+
+      responseCounter.inc({ command: "kick" });
+      end({ command: "kick" });
     } catch (error) {
       console.error(`ошибка при вызове команды /kick: ${error}`);
     }
   }
 
   async mute(ctx: Context, commandDetails: CommandDetails) {
+    const end = responseHistogram.startTimer();
+    requestCounter.inc({ command: "mute" });
     try {
       await ctx.restrictChatMember(commandDetails.userID, {
         permissions: {
@@ -206,12 +219,17 @@ class ModerationController {
       );
 
       await View.muteMessage(ctx, commandDetails.username);
+
+      responseCounter.inc({ command: "mute" });
+      end({ command: "mute" });
     } catch (error) {
       console.error(`ошибка при выполнение команды /mute: ${error}`);
     }
   }
 
   async warn(ctx: Context, commandDetails: CommandDetails) {
+    const end = responseHistogram.startTimer();
+    requestCounter.inc({ command: "warn" });
     try {
       const user = await this.usersModel.getUser(commandDetails.userID);
 
@@ -242,12 +260,17 @@ class ModerationController {
         commandDetails.end,
       );
       await View.warnMessage(ctx, commandDetails.username);
+
+      responseCounter.inc({ command: "warn" });
+      end({ command: "warn" });
     } catch (error) {
       console.log(`ошибка при вызове команды /warn: ${error}`);
     }
   }
 
   async unBan(ctx: Context) {
+    const end = responseHistogram.startTimer();
+    requestCounter.inc({ command: "unban" });
     console.log(`пользователь @${ctx.from?.username} вызвал команду /unban`);
     if (ctx.from?.is_bot) {
       await View.botError(ctx);
@@ -269,6 +292,9 @@ class ModerationController {
 
       await this.usersModel.unBan(commandDetails.userID);
       await View.unBanMessage(ctx, commandDetails.username);
+
+      responseCounter.inc({ command: "unban" });
+      end({ command: "unban" });
     } catch (error) {
       console.error(`ошибка при вызове команды /unban: ${error}`);
       await View.unBanError(ctx);
@@ -276,6 +302,8 @@ class ModerationController {
   }
 
   async unMute(ctx: Context) {
+    const end = responseHistogram.startTimer();
+    requestCounter.inc({ command: "unmute" });
     console.log(`пользователь @${ctx.from?.username} вызвал команду /unmute`);
     if (ctx.from?.is_bot) {
       await View.botError(ctx);
@@ -307,12 +335,17 @@ class ModerationController {
 
       await this.usersModel.unMute(commandDetails.userID);
       await View.unMuteMessage(ctx, commandDetails.username);
+
+      responseCounter.inc({ command: "unmute" });
+      end({ command: "unmute" });
     } catch (error) {
       console.error(`ошибка при выполнении команды /unmute: ${error}`);
     }
   }
 
   async unWarn(ctx: Context) {
+    const end = responseHistogram.startTimer();
+    requestCounter.inc({ command: "unwarn" });
     console.log(`пользователь @${ctx.from?.username} вызвал команду /unwarn`);
     if (ctx.from?.is_bot) {
       await View.botError(ctx);
@@ -372,6 +405,9 @@ class ModerationController {
         user.warns,
       );
       await View.unWarnMessage(ctx, commandDetails.username);
+
+      responseCounter.inc({ command: "unwarn" });
+      end({ command: "unwarn" });
     } catch (error) {
       console.error(`ошибка при вызове команды /unwarn: ${error}`);
       await View.unWarnError(ctx);

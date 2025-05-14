@@ -1,8 +1,15 @@
 services:
-  bot:
+  modbot:
+    container_name: modbot
     build: .
     env_file:
       - .env
     restart: no
     volumes:
       - /var/lib/modbot/db:/usr/app/src/database
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    external: true

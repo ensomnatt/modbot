@@ -6,6 +6,7 @@ import DateUtils from "../utils/dateUtils";
 import { UsersModel } from "../models/usersModel";
 import { MetricsModel } from "../models/metricsModel";
 import { ParseUtils } from "../utils/parseUtils";
+import { requestCounter, responseCounter, responseHistogram } from "../metrics/metrics";
 
 class HelpCommandsController {
   private chatModel: ChatModel;
@@ -28,10 +29,19 @@ class HelpCommandsController {
   }
 
   async help(ctx: Context) {
+    requestCounter.inc({ command: "help" });
+    const end = responseHistogram.startTimer();
+
     await View.helpMessage(ctx);
+
+    responseCounter.inc({ command: "help" });
+    end({ command: "help" });
   }
 
   async settings(ctx: Context) {
+    requestCounter.inc({ command: "settings" });
+    const end = responseHistogram.startTimer();
+
     try {
       console.log(
         `пользователь @${ctx.from?.username} вызвал команду /settings`,
@@ -48,12 +58,18 @@ class HelpCommandsController {
       }
 
       await View.settingsMessage(ctx, chat.warnsMax, parsedWarnsPeriod);
+
+      responseCounter.inc({ command: "settings" });
+      end({ command: "settings" });
     } catch (error) {
       console.error(`ошибка при вызове команды /settings: ${error}`);
     }
   }
 
   async statistics(ctx: Context) {
+    requestCounter.inc({ command: "statistics" });
+    const end = responseHistogram.startTimer();
+
     try {
       console.log(
         `пользователь ${ctx.from?.username} вызвал команду /statistics`,
@@ -68,12 +84,18 @@ class HelpCommandsController {
         statistics.mutes,
         statistics.warns,
       );
+
+      responseCounter.inc({ command: "statistics" });
+      end({ command: "statistics" });
     } catch (error) {
       console.error(`ошибка при вызове команды /statistics: ${error}`);
     }
   }
 
   async bans(ctx: Context) {
+    requestCounter.inc({ command: "bans" });
+    const end = responseHistogram.startTimer();
+
     try {
       console.log(`пользователь ${ctx.from?.username} ввел команду /bans`);
       const users = await this.usersModel.getUsers();
@@ -103,12 +125,18 @@ class HelpCommandsController {
       if (!message) message = "не найдено забаненных пользователей";
 
       await View.sendMessage(ctx, message);
+
+      responseCounter.inc({ command: "bans" });
+      end({ command: "bans" });
     } catch (error) {
       console.error(`ошибка при вызове команды /bans: ${error}`);
     }
   }
 
   async mutes(ctx: Context) {
+    requestCounter.inc({ command: "mutes" });
+    const end = responseHistogram.startTimer();
+
     try {
       console.log(`пользователь ${ctx.from?.username} ввел команду /mutes`);
       const users = await this.usersModel.getUsers();
@@ -138,12 +166,18 @@ class HelpCommandsController {
       if (!message) message = "не найдено замученных пользователей";
 
       await View.sendMessage(ctx, message);
+
+      responseCounter.inc({ command: "mutes" });
+      end({ command: "mutes" });
     } catch (error) {
       console.error(`ошибка при вызове команды /mutes: ${error}`);
     }
   }
 
   async info(ctx: Context) {
+    requestCounter.inc({ command: "info" });
+    const end = responseHistogram.startTimer();
+
     try {
       const commandDetails = await ParseUtils.parseDefaultCommandDetails(
         ctx,
@@ -192,6 +226,9 @@ class HelpCommandsController {
         muteEnd,
         formattedWarns,
       );
+
+      responseCounter.inc({ command: "info" });
+      end({ command: "info" });
     } catch (error) {
       console.error(`ошибка при выполнении команды /info: ${error}`);
       await View.infoError(ctx);

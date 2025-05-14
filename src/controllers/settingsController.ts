@@ -4,6 +4,7 @@ import DateUtils from "../utils/dateUtils";
 import View from "../view/view";
 import { nanoid } from "nanoid";
 import { ParseUtils } from "../utils/parseUtils";
+import { requestCounter, responseCounter, responseHistogram } from "../metrics/metrics";
 
 class SettingsController {
   private chatModel: ChatModel;
@@ -20,10 +21,16 @@ class SettingsController {
   }
 
   async start(ctx: Context) {
+    const end = responseHistogram.startTimer();
+    requestCounter.inc({ command: "start" });
+
     console.log(`бот был запущен впервые`);
     const code = nanoid(5);
     await this.chatModel.code(code);
     await View.startMessage(ctx, code);
+
+    responseCounter.inc({ command: "start" });
+    end({ command: "start" });
   }
 
   async rememberChat(ctx: Context) {
@@ -34,6 +41,9 @@ class SettingsController {
   }
 
   async warnsMax(ctx: Context) {
+    const end = responseHistogram.startTimer();
+    requestCounter.inc({ command: "warns_max" });
+
     let text: string = "";
     if (ctx.message && "text" in ctx.message) text = ctx.message.text;
 
@@ -48,9 +58,15 @@ class SettingsController {
     console.log(
       `пользователь @${ctx.from?.username} изменил максимальное количество варнов`,
     );
+
+    responseCounter.inc({ command: "warns_max" });
+    end({ command: "warns_max" });
   }
 
   async warnsPeriod(ctx: Context) {
+    requestCounter.inc({ command: "warns_period" });
+    const end = responseHistogram.startTimer();
+
     let text: string = "";
     if (ctx.message && "text" in ctx.message) text = ctx.message.text;
 
@@ -76,6 +92,9 @@ class SettingsController {
     console.log(
       `пользователь @${ctx.from?.username} изменил длительность варна`,
     );
+
+    responseCounter.inc({ command: "warns_period" });
+    end({ command: "warns_period" });
   }
 }
 
