@@ -1,4 +1,5 @@
 import db from "../database/database";
+import logger from "../logs/logs";
 
 export interface Chat {
   chatID: number | null;
@@ -20,9 +21,9 @@ export class ChatModel {
   async warnsMax(maxWarns: number) {
     try {
       db.prepare("UPDATE chat SET warns_max = ?").run(maxWarns);
-      console.log(`изменено максимальное количество варнов на ${maxWarns}`);
+      logger.info(`изменено максимальное количество варнов на ${maxWarns}`);
     } catch (error) {
-      console.error(
+      logger.error(
         `ошибка при изменении максимального количества варнов: ${error}`,
       );
     }
@@ -31,36 +32,36 @@ export class ChatModel {
   async warnsPeriod(period: number) {
     try {
       db.prepare("UPDATE chat SET warns_period = ?").run(period);
-      console.log(`изменено время варнов на ${period}`);
+      logger.info(`изменено время варнов на ${period}`);
     } catch (error) {
-      console.error(`ошибка при изменении времени варнов: ${error}`);
+      logger.error(`ошибка при изменении времени варнов: ${error}`);
     }
   }
 
   async chat(chatID: number) {
     try {
       db.prepare("UPDATE chat SET chat_id = ?").run(chatID);
-      console.log(`добавлена информация о чате: ${chatID}`);
+      logger.info(`добавлена информация о чате: ${chatID}`);
     } catch (error) {
-      console.error(`ошибка при попытке добавить информацию о чате: ${error}`);
+      logger.error(`ошибка при попытке добавить информацию о чате: ${error}`);
     }
   }
 
   async timeZone(timeZone: string) {
     try {
       db.prepare("UPDATE chat SET time_zone = ?").run(timeZone);
-      console.log(`изменен часовой пояс на ${timeZone}`);
+      logger.info(`изменен часовой пояс на ${timeZone}`);
     } catch (error) {
-      console.error(`ошибка при изменении часового пояса: ${error}`);
+      logger.error(`ошибка при изменении часового пояса: ${error}`);
     }
   }
 
   async code(code: string) {
     try {
       db.prepare("UPDATE chat SET code = ?").run(code);
-      console.log(`код добавлен в базу данных: ${code}`);
+      logger.info(`код добавлен в базу данных: ${code}`);
     } catch (error) {
-      console.error(`ошибка при добавлении кода: ${error}`);
+      logger.error(`ошибка при добавлении кода: ${error}`);
     }
   }
 
@@ -79,7 +80,7 @@ export class ChatModel {
 
       return chat;
     } catch (error) {
-      console.error(`ошибка при взятии информации о чате: ${error}`);
+      logger.error(`ошибка при взятии информации о чате: ${error}`);
       return null;
     }
   }

@@ -1,6 +1,7 @@
 import { Context } from "telegraf";
 import { MetricsModel } from "../models/metricsModel";
 import DateUtils from "./dateUtils";
+import logger from "../logs/logs";
 
 export interface DefaultCommandDetails {
   replyMessage: any;
@@ -124,7 +125,7 @@ export class ParseUtils {
       };
       return commandDetails;
     } catch (error) {
-      console.error(`ошибка при вызове команды /${commandName}: ${error}`);
+      logger.error(`ошибка при вызове команды /${commandName}: ${error}`);
       return null;
     }
   }

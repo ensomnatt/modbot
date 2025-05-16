@@ -1,5 +1,6 @@
 import { Counter, Histogram, register } from "prom-client";
 import express from "express";
+import logger from "../logs/logs";
 
 export const requestCounter = new Counter({
   name: "telegram_bot_requests_total",
@@ -32,5 +33,5 @@ app.get("/metrics", async (_req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`сервер запущен на порту ${port}`);
+  logger.info(`сервер запущен на порту ${port}`);
 })

@@ -6,15 +6,6 @@ class View {
     await ctx.sendMessage(`${botMessages.start(code)}`);
   }
 
-  static async firstMessage(ctx: Context) {
-    await ctx.sendMessage(botMessages.fist);
-    await ctx.sendMessage(botMessages.second);
-  }
-
-  static async helpMessage(ctx: Context) {
-    await ctx.sendMessage(botMessages.help);
-  }
-
   static async sendMessage(ctx: Context, message: string) {
     await ctx.sendMessage(message);
   }
@@ -100,10 +91,6 @@ class View {
     await ctx.reply(botMessages.warnsMax(warnsMax));
   }
 
-  static async warnsPeriod(ctx: Context) {
-    await ctx.reply(botMessages.warnsPeriod);
-  }
-
   static async banMessage(ctx: Context, username: string) {
     await ctx.reply(botMessages.ban(username));
   }
@@ -132,96 +119,8 @@ class View {
     await ctx.sendMessage(botMessages.unWarn(username));
   }
 
-  static async updateMessage(ctx: Context) {
-    await ctx.sendMessage(botMessages.update);
-  }
-
-  static async gropError(ctx: Context) {
-    await ctx.reply(botMessages.gropError);
-  }
-
-  static async warnsPeriodError(ctx: Context) {
-    await ctx.reply(botMessages.warnsPeriodError);
-  }
-
-  static async warnsMaxError(ctx: Context) {
-    await ctx.reply(botMessages.warnsMaxError);
-  }
-
-  static async banReplyError(ctx: Context) {
-    await ctx.reply(botMessages.banError);
-  }
-
-  static async banError(ctx: Context) {
-    await ctx.reply(botMessages.banError);
-  }
-
   static async userAlreadyBanned(ctx: Context, username: string) {
     await ctx.reply(botMessages.userAlreadyBanned(username));
-  }
-
-  static async kickReplyError(ctx: Context) {
-    await ctx.reply(botMessages.kickReplyError);
-  }
-
-  static async kickError(ctx: Context) {
-    await ctx.reply(botMessages.kickError);
-  }
-
-  static async muteReplyError(ctx: Context) {
-    await ctx.reply(botMessages.muteReplyError);
-  }
-
-  static async muteError(ctx: Context) {
-    await ctx.reply(botMessages.muteError);
-  }
-
-  static async warnReplyError(ctx: Context) {
-    await ctx.reply(botMessages.warnReplyError);
-  }
-
-  static async warnError(ctx: Context) {
-    await ctx.reply(botMessages.warnError);
-  }
-
-  static async unWarnReplyError(ctx: Context) {
-    await ctx.reply(botMessages.unWarnReplyError);
-  }
-
-  static async unWarnError(ctx: Context) {
-    await ctx.reply(botMessages.unWarnError);
-  }
-
-  static async incorrectWarnNumber(ctx: Context) {
-    await ctx.reply(botMessages.incorrectWarnNumber);
-  }
-
-  static async userHasNoWarns(ctx: Context) {
-    await ctx.reply(botMessages.userHasNoWarns);
-  }
-
-  static async unBanError(ctx: Context) {
-    await ctx.reply(botMessages.unBanError);
-  }
-
-  static async unMuteError(ctx: Context) {
-    await ctx.reply(botMessages.unMuteError);
-  }
-
-  static async updateError(ctx: Context) {
-    await ctx.reply(botMessages.updateError);
-  }
-
-  static async userNotFound(ctx: Context) {
-    await ctx.reply(botMessages.userNotFound);
-  }
-
-  static async botError(ctx: Context) {
-    await ctx.reply(botMessages.botError);
-  }
-
-  static async infoError(ctx: Context) {
-    await ctx.reply(botMessages.infoError);
   }
 }
 

@@ -1,4 +1,5 @@
 import db from "../database/database";
+import logger from "../logs/logs";
 
 export interface Statistics {
   bans: number;
@@ -11,9 +12,9 @@ export class StatisticsModel {
   async updateStatistics(column: string) {
     try {
       db.prepare(`UPDATE statistics SET ${column} = ${column} + 1`).run();
-      console.log("статистика обновлена");
+      logger.info("статистика обновлена");
     } catch (error) {
-      console.error(`ошибка при обновлении статистики: ${error}`);
+      logger.error(`ошибка при обновлении статистики: ${error}`);
     }
   }
 
@@ -22,10 +23,10 @@ export class StatisticsModel {
       const statistics = (await db
         .prepare("SELECT * FROM statistics")
         .get()) as Statistics;
-      console.log("получена статистика чата");
+      logger.info("получена статистика чата");
       return statistics;
     } catch (error) {
-      console.error(`ошибка при получении статистики: ${error}`);
+      logger.error(`ошибка при получении статистики: ${error}`);
       return null;
     }
   }

@@ -1,4 +1,5 @@
 import db from "../database/database";
+import logger from "../logs/logs";
 
 export interface User {
   userID: number;
@@ -31,9 +32,9 @@ export class UsersModel {
   async add(userID: number) {
     try {
       db.prepare("INSERT INTO users (user_id) VALUES (?)").run(userID);
-      console.log(`добавлен новый пользователь: ${userID}`);
+      logger.info(`добавлен новый пользователь: ${userID}`);
     } catch (error) {
-      console.error(`ошибка при добавлении пользователя: ${error}`);
+      logger.error(`ошибка при добавлении пользователя: ${error}`);
     }
   }
 
@@ -57,7 +58,7 @@ export class UsersModel {
 
       return user;
     } catch (error) {
-      console.error(`ошибка при получении информации о пользователе: ${error}`);
+      logger.error(`ошибка при получении информации о пользователе: ${error}`);
       return null;
     }
   }
@@ -85,7 +86,7 @@ export class UsersModel {
 
       return users;
     } catch (error) {
-      console.error(`ошибка при получении всех пользователей: ${error}`);
+      logger.error(`ошибка при получении всех пользователей: ${error}`);
       return null;
     }
   }
@@ -105,7 +106,7 @@ export class UsersModel {
   async getWarns(userID: number): Promise<Warn[] | null> {
     try {
       const warnsCount = await this.getMaxWarn();
-      console.log(warnsCount);
+      logger.info(warnsCount);
       const warns: Warn[] = [];
       for (let i = 1; i <= warnsCount; i++) {
         const warn = (await db
@@ -121,10 +122,10 @@ export class UsersModel {
         });
       }
 
-      console.log("получены варны пользователя");
+      logger.info("получены варны пользователя");
       return warns;
     } catch (error) {
-      console.error(`ошибка при взятии варнов пользователя: ${error}`);
+      logger.error(`ошибка при взятии варнов пользователя: ${error}`);
       return null;
     }
   }
@@ -136,7 +137,7 @@ export class UsersModel {
         .get(userID) as { count: number };
       return result.count > 0;
     } catch (error) {
-      console.error(
+      logger.error(
         `ошибка при проверке на наличие пользователя в бд: ${error}`,
       );
       return null;
@@ -155,7 +156,7 @@ export class UsersModel {
 
       return false;
     } catch (error) {
-      console.error(`ошибка при проверке на наличие колонки: ${error}`);
+      logger.error(`ошибка при проверке на наличие колонки: ${error}`);
       return null;
     }
   }
@@ -166,29 +167,29 @@ export class UsersModel {
         db.prepare(
           "UPDATE users SET banned = 1, banned_why = ?,ban_end = ? WHERE user_id = ?",
         ).run(why, end, userID);
-        console.log(
+        logger.info(
           `забанен пользователь ${userID} по причине ${why} до ${end}`,
         );
       } else if (why) {
         db.prepare(
           "UPDATE users SET banned = 1, banned_why = ?, ban_end = 0 WHERE user_id = ?",
         ).run(why, userID);
-        console.log(
+        logger.info(
           `забанен пользователь ${userID} по причине ${why} навсегда`,
         );
       } else if (end) {
         db.prepare(
           "UPDATE users SET banned = 1, ban_end = ? WHERE user_id = ?",
         ).run(end, userID);
-        console.log(`забанен пользователь ${userID} без причины до ${end}`);
+        logger.info(`забанен пользователь ${userID} без причины до ${end}`);
       } else {
         db.prepare(
           "UPDATE users SET banned = 1, ban_end = 0 WHERE user_id = ?",
         ).run(userID);
-        console.log(`забанен пользователь ${userID} без причины навсегда`);
+        logger.info(`забанен пользователь ${userID} без причины навсегда`);
       }
     } catch (error) {
-      console.error(`ошибка при бане пользователя: ${error}`);
+      logger.error(`ошибка при бане пользователя: ${error}`);
     }
   }
 
@@ -198,29 +199,29 @@ export class UsersModel {
         db.prepare(
           "UPDATE users SET muted = 1, muted_why = ?, mute_end = ? WHERE user_id = ?",
         ).run(why, end, userID);
-        console.log(
+        logger.info(
           `замучен пользователь ${userID} по причине ${why} до ${end}`,
         );
       } else if (why) {
         db.prepare(
           "UPDATE users SET muted = 1, muted_why = ?, mute_end = 0 WHERE user_id = ?",
         ).run(why, userID);
-        console.log(
+        logger.info(
           `замучен пользователь ${userID} по причине ${why} навсегда`,
         );
       } else if (end) {
         db.prepare(
           "UPDATE users SET muted = 1, mute_end = ? WHERE user_id = ?",
         ).run(end, userID);
-        console.log(`замучен пользователь ${userID} без причины до ${end}`);
+        logger.info(`замучен пользователь ${userID} без причины до ${end}`);
       } else {
         db.prepare(
           "UPDATE users SET muted = 1, mute_end = 0 WHERE user_id = ?",
         ).run(userID);
-        console.log(`замучен пользователь ${userID} без причины навсегда`);
+        logger.info(`замучен пользователь ${userID} без причины навсегда`);
       }
     } catch (error) {
-      console.error(`ошибка при муте пользователя: ${error}`);
+      logger.error(`ошибка при муте пользователя: ${error}`);
     }
   }
 
@@ -255,11 +256,11 @@ export class UsersModel {
           `UPDATE users SET warn_${warns}_why = ?, warn_${warns}_end = ? WHERE user_id = ?`,
         ).run(why, end, userID);
         if (!end) {
-          console.log(
+          logger.info(
             `пользователю ${userID} был выдан варн по причине ${why} навсегда`,
           );
         } else {
-          console.log(
+          logger.info(
             `пользователю ${userID} был выдан варн по причине ${why} до ${end}`,
           );
         }
@@ -268,17 +269,17 @@ export class UsersModel {
           `UPDATE users SET warn_${warns}_end = ? WHERE user_id = ?`,
         ).run(end, userID);
         if (!end) {
-          console.log(
+          logger.info(
             `пользователю ${userID} был выдан варн без причины навсегда`,
           );
         } else {
-          console.log(
+          logger.info(
             `пользователю ${userID} был выдан варн без причины до ${end}`,
           );
         }
       }
     } catch (error) {
-      console.error(`ошибка при выдаче варна: ${error}`);
+      logger.error(`ошибка при выдаче варна: ${error}`);
     }
   }
 
@@ -296,7 +297,7 @@ export class UsersModel {
 
       return warn[columnName] === 1;
     } catch (error) {
-      console.error(`ошибка при проверке статуса варна: ${error}`);
+      logger.error(`ошибка при проверке статуса варна: ${error}`);
       return null;
     }
   }
@@ -306,9 +307,9 @@ export class UsersModel {
       db.prepare(
         "UPDATE users SET banned = 0, banned_why = NULL, ban_end = NULL WHERE user_id = ?",
       ).run(userID);
-      console.log(`пользователь ${userID} был разбанен`);
+      logger.info(`пользователь ${userID} был разбанен`);
     } catch (error) {
-      console.error(`ошибка при разбане пользователя: ${error}`);
+      logger.error(`ошибка при разбане пользователя: ${error}`);
     }
   }
 
@@ -317,9 +318,9 @@ export class UsersModel {
       db.prepare(
         "UPDATE users SET muted = 0, muted_why = NULL, mute_end = NULL WHERE user_id = ?",
       ).run(userID);
-      console.log(`пользователь ${userID} был размучен`);
+      logger.info(`пользователь ${userID} был размучен`);
     } catch (error) {
-      console.error(`ошибка при размуте пользователя: ${error}`);
+      logger.error(`ошибка при размуте пользователя: ${error}`);
     }
   }
 
@@ -335,18 +336,18 @@ export class UsersModel {
 
         db.prepare("UPDATE users SET warns = 0 WHERE user_id = ?").run(userID);
 
-        console.log(`с пользователя ${userID} были сняты все варны`);
+        logger.info(`с пользователя ${userID} были сняты все варны`);
       } else {
         db.prepare(
           `UPDATE users SET warns = ?, warn_${warnNumber} = 0, warn_${warnNumber}_why = NULL, warn_${warnNumber}_end = NULL WHERE user_id = ?`,
         ).run(warns, userID);
 
-        console.log(
+        logger.info(
           `с пользователя ${userID} был снят варн под номером ${warnNumber}`,
         );
       }
     } catch (error) {
-      console.error(`ошибка при снятии варна: ${error}`);
+      logger.error(`ошибка при снятии варна: ${error}`);
     }
   }
 }

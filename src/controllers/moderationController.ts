@@ -11,6 +11,8 @@ import DateUtils from "../utils/dateUtils";
 import View from "../view/view";
 import { MetricsModel } from "../models/metricsModel";
 import { requestCounter, responseCounter, responseHistogram } from "../metrics/metrics";
+import botMessages from "../config/texts";
+import logger from "../logs/logs";
 
 interface CommandDetails extends PunishCommandDetails, DefaultCommandDetails { }
 
@@ -35,12 +37,12 @@ class ModerationController {
   }
 
   async punishUser(ctx: Context, commandName: string) {
-    console.log(
+    logger.info(
       `пользователь @${ctx.from?.username} вызвал команду /${commandName}`,
     );
 
     if (ctx.from?.is_bot) {
-      await View.botError(ctx);
+      await View.sendMessage(ctx, botMessages.botError);
       return;
     }
 
@@ -55,7 +57,7 @@ class ModerationController {
       );
 
       if (defaultCommandDetails?.userID === 0) {
-        await View.userNotFound(ctx)
+        await View.sendMessage(ctx, botMessages.userNotFound);
         return;
       }
       if (!defaultCommandDetails)
@@ -81,7 +83,7 @@ class ModerationController {
       switch (chatMember.status) {
         case "kicked":
         case "left":
-          await View.userNotFound(ctx);
+          await View.sendMessage(ctx, botMessages.userNotFound);
           return;
       }
 
@@ -119,35 +121,35 @@ class ModerationController {
     error: unknown,
     ctx: Context,
   ) {
-    console.error(`ошибка при вызове команды /${commandName}: ${error}`);
+    logger.error(`ошибка при вызове команды /${commandName}: ${error}`);
     if (replyMessage) {
       switch (commandName) {
         case "ban":
-          await View.banReplyError(ctx);
+          await View.sendMessage(ctx, botMessages.banReplyError);
           break;
         case "kick":
-          await View.kickReplyError(ctx);
+          await View.sendMessage(ctx, botMessages.kickReplyError);
           break;
         case "mute":
-          await View.muteReplyError(ctx);
+          await View.sendMessage(ctx, botMessages.muteReplyError);
           break;
         case "warn":
-          await View.warnReplyError(ctx);
+          await View.sendMessage(ctx, botMessages.warnReplyError);
           break;
       }
     } else {
       switch (commandName) {
         case "ban":
-          await View.banError(ctx);
+          await View.sendMessage(ctx, botMessages.banError);
           break;
         case "kick":
-          await View.kickError(ctx);
+          await View.sendMessage(ctx, botMessages.kickError);
           break;
         case "mute":
-          await View.muteError(ctx);
+          await View.sendMessage(ctx, botMessages.muteError);
           break;
         case "warn":
-          await View.warnError(ctx);
+          await View.sendMessage(ctx, botMessages.warnError);
           break;
       }
     }
@@ -173,7 +175,7 @@ class ModerationController {
       responseCounter.inc({ command: "ban" });
       end({ command: "ban" });
     } catch (error) {
-      console.error(`ошибка при вызове команды /ban: ${error}`);
+      logger.error(`ошибка при вызове команды /ban: ${error}`);
     }
   }
 
@@ -190,7 +192,7 @@ class ModerationController {
       responseCounter.inc({ command: "kick" });
       end({ command: "kick" });
     } catch (error) {
-      console.error(`ошибка при вызове команды /kick: ${error}`);
+      logger.error(`ошибка при вызове команды /kick: ${error}`);
     }
   }
 
@@ -223,7 +225,7 @@ class ModerationController {
       responseCounter.inc({ command: "mute" });
       end({ command: "mute" });
     } catch (error) {
-      console.error(`ошибка при выполнение команды /mute: ${error}`);
+      logger.error(`ошибка при выполнение команды /mute: ${error}`);
     }
   }
 
@@ -264,16 +266,16 @@ class ModerationController {
       responseCounter.inc({ command: "warn" });
       end({ command: "warn" });
     } catch (error) {
-      console.log(`ошибка при вызове команды /warn: ${error}`);
+      logger.error(`ошибка при вызове команды /warn: ${error}`);
     }
   }
 
   async unBan(ctx: Context) {
     const end = responseHistogram.startTimer();
     requestCounter.inc({ command: "unban" });
-    console.log(`пользователь @${ctx.from?.username} вызвал команду /unban`);
+    logger.info(`пользователь @${ctx.from?.username} вызвал команду /unban`);
     if (ctx.from?.is_bot) {
-      await View.botError(ctx);
+      await View.sendMessage(ctx, botMessages.botError);
       return;
     }
 
@@ -285,7 +287,7 @@ class ModerationController {
       );
 
       if (commandDetails?.userID === 0) {
-        await View.userNotFound(ctx);
+        await View.sendMessage(ctx, botMessages.userNotFound);
         return;
       }
       if (!commandDetails) throw new Error("commandDetails is null");
@@ -296,17 +298,17 @@ class ModerationController {
       responseCounter.inc({ command: "unban" });
       end({ command: "unban" });
     } catch (error) {
-      console.error(`ошибка при вызове команды /unban: ${error}`);
-      await View.unBanError(ctx);
+      logger.error(`ошибка при вызове команды /unban: ${error}`);
+      await View.sendMessage(ctx, botMessages.unBanError);
     }
   }
 
   async unMute(ctx: Context) {
     const end = responseHistogram.startTimer();
     requestCounter.inc({ command: "unmute" });
-    console.log(`пользователь @${ctx.from?.username} вызвал команду /unmute`);
+    logger.info(`пользователь @${ctx.from?.username} вызвал команду /unmute`);
     if (ctx.from?.is_bot) {
-      await View.botError(ctx);
+      await View.sendMessage(ctx, botMessages.botError);
       return;
     }
 
@@ -339,16 +341,16 @@ class ModerationController {
       responseCounter.inc({ command: "unmute" });
       end({ command: "unmute" });
     } catch (error) {
-      console.error(`ошибка при выполнении команды /unmute: ${error}`);
+      logger.error(`ошибка при выполнении команды /unmute: ${error}`);
     }
   }
 
   async unWarn(ctx: Context) {
     const end = responseHistogram.startTimer();
     requestCounter.inc({ command: "unwarn" });
-    console.log(`пользователь @${ctx.from?.username} вызвал команду /unwarn`);
+    logger.info(`пользователь @${ctx.from?.username} вызвал команду /unwarn`);
     if (ctx.from?.is_bot) {
-      await View.botError(ctx);
+      await View.sendMessage(ctx, botMessages.botError);
       return;
     }
 
@@ -360,7 +362,7 @@ class ModerationController {
       );
 
       if (commandDetails?.userID === 0) {
-        await View.userNotFound(ctx);
+        await View.sendMessage(ctx, botMessages.userNotFound);
         return;
       }
       if (!commandDetails) throw new Error("commandDetails is null");
@@ -379,7 +381,7 @@ class ModerationController {
       if (!user) throw new Error("user is null");
 
       if (!user.warns) {
-        await View.userHasNoWarns(ctx);
+        await View.sendMessage(ctx, botMessages.userHasNoWarns);
         return;
       }
 
@@ -394,7 +396,7 @@ class ModerationController {
             warnNumber,
           ))
         ) {
-          await View.incorrectWarnNumber(ctx);
+          await View.sendMessage(ctx, botMessages.incorrectWarnNumber);
           return;
         }
       }
@@ -409,8 +411,8 @@ class ModerationController {
       responseCounter.inc({ command: "unwarn" });
       end({ command: "unwarn" });
     } catch (error) {
-      console.error(`ошибка при вызове команды /unwarn: ${error}`);
-      await View.unWarnError(ctx);
+      logger.error(`ошибка при вызове команды /unwarn: ${error}`);
+      await View.sendMessage(ctx, botMessages.unWarnError);
     }
   }
 }

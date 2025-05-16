@@ -1,13 +1,14 @@
 import { Context, MiddlewareFn } from "telegraf";
 import { ChatModel } from "../models/chatModel";
 import SettingsController from "../controllers/settingsController";
+import logger from "../logs/logs";
 
 const chatModel = new ChatModel();
 const settingsController = new SettingsController();
 settingsController.initialize();
 
 export const startMW: MiddlewareFn<Context> = async (ctx, next) => {
-  console.log(`пользователь ${ctx.from?.username} запустил бота`);
+  logger.info(`пользователь ${ctx.from?.username} запустил бота`);
   const chat = await chatModel.chatInfo();
   const chatID = chat?.chatID;
 

@@ -5,6 +5,8 @@ import View from "../view/view";
 import { nanoid } from "nanoid";
 import { ParseUtils } from "../utils/parseUtils";
 import { requestCounter, responseCounter, responseHistogram } from "../metrics/metrics";
+import botMessages from "../config/texts";
+import logger from "../logs/logs";
 
 class SettingsController {
   private chatModel: ChatModel;
@@ -24,7 +26,7 @@ class SettingsController {
     const end = responseHistogram.startTimer();
     requestCounter.inc({ command: "start" });
 
-    console.log(`бот был запущен впервые`);
+    logger.info(`бот был запущен впервые`);
     const code = nanoid(5);
     await this.chatModel.code(code);
     await View.startMessage(ctx, code);
@@ -36,8 +38,9 @@ class SettingsController {
   async rememberChat(ctx: Context) {
     const chatID = ctx.chat?.id || 0;
     await this.chatModel.chat(chatID);
-    console.log(`бот был добавлен в группу ${chatID}`);
-    await View.firstMessage(ctx);
+    logger.info(`бот был добавлен в группу ${chatID}`);
+    await View.sendMessage(ctx, botMessages.fist);
+    await View.sendMessage(ctx, botMessages.second);
   }
 
   async warnsMax(ctx: Context) {
@@ -51,11 +54,11 @@ class SettingsController {
     if (text.startsWith("!")) maxWarnsIndex = 2;
 
     const maxWarns = parseInt(text.split(" ")[maxWarnsIndex], 10);
-    if (typeof maxWarns !== "number") await View.warnsMaxError(ctx);
+    if (typeof maxWarns !== "number") await View.sendMessage(ctx, botMessages.warnsMaxError);
 
     await this.chatModel.warnsMax(maxWarns);
     await View.warnsMax(ctx, maxWarns);
-    console.log(
+    logger.info(
       `пользователь @${ctx.from?.username} изменил максимальное количество варнов`,
     );
 
@@ -75,21 +78,21 @@ class SettingsController {
 
     if (parsedText.includes("бесконечно")) {
       await this.chatModel.warnsPeriod(0);
-      await View.warnsPeriod(ctx);
+      await View.sendMessage(ctx, botMessages.warnsPeriod);
       return;
     }
 
     if (!ParseUtils.hasTime(parsedTextStr)) {
-      await View.warnsPeriodError(ctx);
+      await View.sendMessage(ctx, botMessages.warnsPeriodError);
       return;
     }
 
     await this.chatModel.warnsPeriod(
       await this.dateUtils.getDuration(parsedText),
     );
-    await View.warnsPeriod(ctx);
+    await View.sendMessage(ctx, botMessages.warnsPeriod);
 
-    console.log(
+    logger.info(
       `пользователь @${ctx.from?.username} изменил длительность варна`,
     );
 

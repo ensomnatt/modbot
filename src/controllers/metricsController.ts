@@ -1,6 +1,8 @@
 import { Context } from "telegraf";
 import { Metric, MetricsModel } from "../models/metricsModel";
 import View from "../view/view";
+import botMessages from "../config/texts";
+import logger from "../logs/logs";
 
 class MetricsController {
   private metricsModel: MetricsModel;
@@ -12,14 +14,14 @@ class MetricsController {
 
   async startWork(ctx: Context) {
     if (this.intervalID === null) {
-      console.log("метрика была запущена");
-      await View.updateMessage(ctx);
+      logger.info("метрика была запущена");
+      await View.sendMessage(ctx, botMessages.update);
 
       this.intervalID = setInterval(async () => {
         await this.work(ctx);
       }, 20 * 1000);
     } else {
-      await View.updateError(ctx);
+      await View.sendMessage(ctx, botMessages.updateError);
     }
   }
 
@@ -54,7 +56,7 @@ class MetricsController {
 
       if (!isExists) await this.metricsModel.add(metric);
     } catch (error) {
-      console.error(`ошибка при работе метрикс контроллера: ${error}`);
+      logger.error(`ошибка при работе метрикс контроллера: ${error}`);
     }
   }
 }

@@ -1,4 +1,5 @@
 import Database from "better-sqlite3";
+import logger from "../logs/logs";
 
 const db = new Database("src/database/modBot.db");
 
@@ -60,6 +61,6 @@ if (!result.count) {
   ).run();
 }
 
-console.log("инициализирована база данных");
+logger.info("инициализирована база данных");
 
 export default db;

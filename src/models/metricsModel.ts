@@ -1,4 +1,5 @@
 import db from "../database/database";
+import logger from "../logs/logs";
 
 export interface Metric {
   userID: number;
@@ -17,11 +18,11 @@ export class MetricsModel {
         metric.userID,
         metric.username,
       );
-      console.log(
+      logger.info(
         `добавлена новая метрика: ${metric.userID} ${metric.username}`,
       );
     } catch (error) {
-      console.error(`ошибка при добавлении новой метрики: ${error}`);
+      logger.error(`ошибка при добавлении новой метрики: ${error}`);
     }
   }
 
@@ -32,7 +33,7 @@ export class MetricsModel {
         .get(userID)) as { count: number };
       return result.count > 0;
     } catch (error) {
-      console.error(`ошибка при проверке на наличие метрики: ${error}`);
+      logger.error(`ошибка при проверке на наличие метрики: ${error}`);
       return null;
     }
   }
@@ -55,7 +56,7 @@ export class MetricsModel {
 
       return metrics;
     } catch (error) {
-      console.error(`ошибка при получении всех метрик: ${error}`);
+      logger.error(`ошибка при получении всех метрик: ${error}`);
       return null;
     }
   }
@@ -67,16 +68,16 @@ export class MetricsModel {
         .get(username)) as { user_id: number };
 
       if (result) {
-        console.log(
+        logger.info(
           `получен айди по юзернейму: ${result.user_id}, ${username}`,
         );
         return result.user_id;
       } else {
-        console.log(`не найдено айди по юзернейму ${username}`);
+        logger.info(`не найдено айди по юзернейму ${username}`);
         return 0;
       }
     } catch (error) {
-      console.error(`ошибка при получении айди по юзернейму: ${error}`);
+      logger.error(`ошибка при получении айди по юзернейму: ${error}`);
       return null;
     }
   }
@@ -88,14 +89,14 @@ export class MetricsModel {
         .get(userID)) as { username: string };
 
       if (result) {
-        console.log(`получен юзернейм по айди: ${result.username}, ${userID}`);
+        logger.info(`получен юзернейм по айди: ${result.username}, ${userID}`);
         return result.username;
       } else {
-        console.log(`не найдено айди по юзернейму ${userID}`);
+        logger.info(`не найдено айди по юзернейму ${userID}`);
         return "";
       }
     } catch (error) {
-      console.error(`ошибка при получении юзернейма по айди: ${error}`);
+      logger.error(`ошибка при получении юзернейма по айди: ${error}`);
       return null;
     }
   }
@@ -106,11 +107,11 @@ export class MetricsModel {
         newUsername,
         userID,
       );
-      console.log(
+      logger.info(
         `юзернейм пользователя ${userID} был изменен на ${newUsername}`,
       );
     } catch (error) {
-      console.error(`ошибка при обновлении юзернейма пользователя: ${error}`);
+      logger.error(`ошибка при обновлении юзернейма пользователя: ${error}`);
     }
   }
 }
